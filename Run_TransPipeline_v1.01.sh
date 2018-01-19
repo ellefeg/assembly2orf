@@ -14,9 +14,6 @@
 # ------------------------------------------------------------------
 
 echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @"
-# Write to parameters log
-##### Enter a line here that makes a log file (sample specific?) which will contain info about the parameters used in each analysis step, for replication/ 
-##### Including version numbers of the tools
 
 ####################
 ## INITIALISATION ##
@@ -30,23 +27,19 @@ echo "Initialising analysis at $(date) @"
 
 echo "...setting variables @"
 
-# Databases
-## Change if required
-scriptlib='/home/laura/scripts/pipelines/TransPipeline' #Location of pipeline scripts
-blastDB='/home/laura/data/inhouse_data/blastDB_fam25p+metaz_longestreps/fam25p+metaz_longreps.dmnd'
-blastFA='/home/laura/data/inhouse_data/blastDB_fam25p+metaz_longestreps/fam25p+metaz_longreps.fa'
-
 # User-supplied variables
-sample=$1	# Brief sample name
-trinity=$2	# Trinity.fa file
+sample=$1	# Brief sample name (sample-specific)
+trinity=$2	# Trinity.fa file (sample-specific)
 wkdir=$3	# Base working directory
-
+scriptlib=$4	# Location where the scripts live
+blastDB=$5	# Location of the blast database
+blastFA=$6	# Location of the fasta file used to create the blast database
 
 #--------------------------
 # Prepare directories
 #--------------------------
 
-echo "...generating working directories @"
+echo "...generating sample-specific working directory @"
 
 # Move to working directory
 cd "$wkdir" || { echo "Could not move to wkdir - exiting! @"; exit 1 ; }
@@ -62,10 +55,23 @@ else
 fi
 
 #--------------------------
+# Prepare parameter specification file
+#--------------------------
+
+# This spec file will contain information about the run, intended for reproducibility/writing up methods
+touch "$sample"_specfile
+echo "$sample" >> "$sample"_specfile
+echo date of analysis is $(date) >> "$sample"_specfile
+
+#--------------------------
 # Prepare FASTA files
 #--------------------------
 
-echo "...preparing FASTA files @"
+echo "...reformatting raw transcriptome FASTA file @"
+
+# Make a note in the spec file about which original FASTA file was used
+echo "$sample" analysis used input file "$trinity" which contains $(wc -c "$trinity" | awk '{print $1}') bytes >> "$sample"_specfile
+echo >> "$sample"_specfile
 
 # Format Trinity file to look pretty (and contain sample name in header)
 	# INPUT: "$trinity"
@@ -73,7 +79,9 @@ echo "...preparing FASTA files @"
 $scriptlib/fasta_header.sh "$sample" "$trinity" y
 mv "$sample"_clean.fa "$sample"_trinity.fa
 
-echo "...FASTA file ready for analysis. @"
+# Make a note in the spec file about how the original FASTA file was modified
+echo the file "$trinity" was formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1)
+echo >> "$sample"_specfile
 
 #########################
 ## PRE-EXONERATE BLAST ##
@@ -83,11 +91,16 @@ echo "Running BLASTX in preparation for Exonerate at $(date) @"
 
 # Identify best protein BLAST hits for each transcript
 	# INPUT: "$sample"_trinity.fa
-	# OUTPUT: "$sample"_blastx.out
-$scriptlib/runDiamondBlastx.sh "$sample" "$sample"_trinity.fa "$blastDB"
-mv "$sample"_blastx.out "$sample"_FSblastx.out
+	# OUTPUT: "$sample"_FSblastx.out
+diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
+echo "...BLASTX complete at $(date) @"	
 
-echo "...BLASTX complete at $(date) @"
+# Make a note in the spec file about which BLAST parameters were used
+echo pre-Exonerate BLAST used the following parameters: >> "$sample"_specfile
+diamond --version >> "$sample"_specfile
+echo diamond was run with the following command: >> "$sample"_specfile
+echo diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out >> "$sample"_specfile
+echo >> "$sample"_specfile
 
 ###############
 ## EXONERATE ##
@@ -96,7 +109,7 @@ echo "...BLASTX complete at $(date) @"
 echo "Correcting frameshifts with Exonerate at $(date) @"
 
 # Correct any frameshifts in each transcript
-	# INPUT: "$sample"_blastx.out and "$sample"_trinity.fa
+	# INPUT: "$sample"_FSblastx.out and "$sample"_trinity.fa
 	# OUTPUT: "$sample"_TrinityFS.fa
 $scriptlib/PairwiseExonerate.sh "$sample" "$sample"_FSblastx.out "$sample"_trinity.fa "$blastFA"
 
@@ -110,6 +123,13 @@ do
 done
 
 echo "...completed Exonerate analysis at $(date) @"
+
+# Make a note in the spec file about which Exonerate parameters were used
+echo Exonerate used the following parameters: >> "$sample"_specfile
+echo files were formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1)
+echo exonerate was run with this command: >> "$sample"_specfile
+echo exonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo ">%ti (%tab - %tae)\n%tcs\n" >> "$sample"_exonerateTemp.out >> "$sample"_specfile
+echo fasta files were filtered using $(fasta_formatter | head -n 1) >> "$sample"_specfile
 
 ##################
 ## TRANSDECODER ##
@@ -187,6 +207,6 @@ done
 echo "...output directory organised"
 echo ...output file of ORFs is "$sample"_ORFs.fa @
 
-echo "Run_TransPipeline.sh complete for $(sample) at $(date)" | mail -s "Server alert:  Run_TransPipeline.sh complete" "lfgrice@gmail.com"
+####echo "Run_TransPipeline.sh complete for $(sample) at $(date)" | mail -s "Server alert:  Run_TransPipeline.sh complete" "lfgrice@gmail.com"
 cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
 
