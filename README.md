@@ -163,6 +163,12 @@ Note: if you want to change any of the settings to the various commands, make su
     4.  {sample}_transDecoderTemp - directory with transdecoder output
     5.  {sample}_ORFs.info - the header information produced by TransDecoder, just in case the truncated names in the final output file are insufficient
 
+# what if I only want to run part of this pipeline?
+/##### Add some text here about how to run each part. Either just list the commands you can run or describe how to do it??
+
+# What if I want to continue this pipeline with another analysis?
+/##### Is it possible to add in another step to the while loop in the trigger script? think abotu this and maybe edit here.
+
 # Next steps
 *This section added 6 December 2017*
 Based on the paper by Ono et al. 2013 (BMC Genomics 2015 16:1031), I tested various methods of filtering transcriptomes. By reducing the redundancy in a transcriptome dataset, you remove sequences that are too similar to one another to be able to be properly mapped/distinguished between in DGE analysis. By removing this data, DGE outcomes were found to be improved. The method I settled on involves BLASTing a sequence dataset (within a species) against a reference database, and for all new sequences with a top BLAST hit to SeqA, take only the longest sequence. The results of this analysis (nt or aa) can be found here:
