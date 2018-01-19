@@ -1,14 +1,22 @@
 #!/bin/bash
 # ------------------------------------------------------------------
-# Author: Laura Grice
-# Date: 28 July 2017
-# Title: Run_TransPipeline.sh
-# Goal: To call the sub-component scripts to generate filtered transcript datase
-# Usage: nohup ./Run_TransPipeline.sh {sample} {trinity.fa} {working dir} > nohup.out 2>&1&
-# Expected output: "$sample"_ORFs.fa which can be used for clustering methods downstream
+# Author:	Laura Grice
+# Title:	Run_TransPipeline.sh #####Change name????#####
+# Version:	v01.01
+# Goal:		To convert a .fa transcriptome assembly to a filtered set of transcript ORFs
+# Usage:	nohup ./Run_TransPipeline.sh {sample} {trinity.fa} {working dir} > nohup.out 2>&1&
+# Output:	"$sample"_ORFs.fa which can be used for clustering methods downstream #####CHANGE THIS#####
+# ------------------------------------------------------------------
+# VERSION INFORMATION
+# v01.00 28 July 2017
+# v01.01 19 January 2018
+# Updated to run on Asellus
 # ------------------------------------------------------------------
 
-echo "Welcome to Run_TransPipeline.sh. It is currently $(date) @"
+echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @"
+# Write to parameters log
+##### Enter a line here that makes a log file (sample specific?) which will contain info about the parameters used in each analysis step, for replication/ 
+##### Including version numbers of the tools
 
 ####################
 ## INITIALISATION ##
@@ -32,6 +40,7 @@ blastFA='/home/laura/data/inhouse_data/blastDB_fam25p+metaz_longestreps/fam25p+m
 sample=$1	# Brief sample name
 trinity=$2	# Trinity.fa file
 wkdir=$3	# Base working directory
+
 
 #--------------------------
 # Prepare directories
