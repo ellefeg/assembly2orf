@@ -124,6 +124,8 @@ Run the program with the following command:
 $ nohup ./TriggerPipeline.sh > TransPipeline_nohup.out 2>&1&
 ```
 
+Note: if you want to change any of the settings to the various commands, make sure you also change the relevant lines that write to the file ""$sample"_specfile" - this will be important for making sure you write up the correct methods in your papers
+
 # Software overview
 **Run_TransPipeline.sh** will loop through each sample of interest specified in **input_param**. Therefore, the whole script will be run for Sample A, then again for Sample B, etc. 
 
