@@ -38,6 +38,6 @@ blastfasta=$5	#location of the fasta file used to create this blastdb
 # ------------------------------------------------------------------
 while read -r sample_name transcripts; do
 	cd "$workdir" || exit 1
-	./Run_TransPipeline.sh "$sample_name" "$transcripts" "$paramfile" "$wkdir" "$scriptlib" "$blastdb" "$blastfasta"
+	./assembly2orf.sh "$sample_name" "$transcripts" "$wkdir" "$scriptlib" "$blastdb" "$blastfasta"
 done < "$paramfile"
 
