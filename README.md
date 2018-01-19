@@ -37,12 +37,12 @@ Before you modify these files, you will need to copy them to your working direct
 
 There are additional custom scripts that **assembly2orf** requires to run. If you are using the Asellus server you should already have access to these scripts and won't have to change anything. However, if you want to run your own local version, you must edit **Run_TransPipeline.sh**
 
-**assembly2orf** also contains a set of custom scripts (`/assembly2orf/dependencies/`). If you are running **assembly2orf** from `/home/laura/scripts/pipelines/assembly2orf` on the Asellus server, you will automatically have access to these scripts. However, if you want to run your own local version you will need to edit the filepaths specified at the lines of **Run_TransPipeline.sh** specified in brackets below:
+**assembly2orf** also contains a set of custom scripts (`/assembly2orf/dependencies/`). ~~If you are running **assembly2orf** from `/home/laura/scripts/pipelines/assembly2orf` on the Asellus server, you will automatically have access to these scripts. However, if you want to run your own local version you will need to edit the filepaths specified at the lines of **Run_TransPipeline.sh** specified in brackets below:
 * fasta_header.sh (lines 64, 161)
 * runDiamondBlastx.sh (line 78)
 * PairwiseExonerate.sh (line 92)
 * runDiamondBlastp.sh (line 124)
-* run_hmmscan.sh (line 126)
+* run_hmmscan.sh (line 126)~~ #by providing assembly2orf with the location of the script library, this is an unnecessary step. But include where the "Default" set is in the readme for inhouse users.
 
 Information about how to do this is given in the **Getting Started** section below.
 
@@ -74,25 +74,26 @@ ls -lth
 # the x means you can execute the script
 ```
 
-Alternatively, if you will be running your own local version you will need to edit the following lines of your new copy of **Run_TransPipeline.sh**:
+~~Alternatively, if you will be running your own local version you will need to edit the following lines of your new copy of **Run_TransPipeline.sh**:
 * fasta_header.sh (lines 64, 161)
 * runDiamondBlastx.sh (line 78)
 * PairwiseExonerate.sh (line 92)
 * runDiamondBlastp.sh (line 124)
-* run_hmmscan.sh (line 126)
+* run_hmmscan.sh (line 126)~~
 
-```
+~~```
 vi +{linenumber} Run_TransPipeline.sh # This will take you directly to the correct line
 i #now use the cursor/keyboard to edit the filestring
 <escape>
 :wq #this will save the changes
-```
+```~~
 
-If you want to use your own amino acid file for BLAST searching, make a Diamond database and edit **Run_TransPipeline.sh** to specify the new filestring
+
+~~If you want to use your own amino acid file for BLAST searching, make a Diamond database and edit **Run_TransPipeline.sh** to specify the new filestring
 ```
 diamond makedb --in myAAfasta.fa --db desired_database_name
 vi +28 Run_TransPipeline.sh #edit line 28 (diamond database file location) and line 29 (amino acid file location)
-```
+```~~ #change to discuss how this is called by the program when you run it
 
 
 
