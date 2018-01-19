@@ -13,7 +13,7 @@
 # Updated to run on Asellus
 # ------------------------------------------------------------------
 
-echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @"
+echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @" #####maybe change the name
 
 ####################
 ## INITIALISATION ##
@@ -126,9 +126,9 @@ echo "...completed Exonerate analysis at $(date) @"
 
 # Make a note in the spec file about which Exonerate parameters were used
 echo Exonerate used the following parameters: >> "$sample"_specfile
-echo files were formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1)
+echo files were formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1) >> "$sample"_specfile
 echo exonerate was run with this command: >> "$sample"_specfile
-echo exonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo ">%ti (%tab - %tae)\n%tcs\n" >> "$sample"_exonerateTemp.out >> "$sample"_specfile
+echo exonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo ">%ti (%tab - %tae)\n%tcs\n" >> "$sample"_specfile
 echo fasta files were filtered using $(fasta_formatter | head -n 1) >> "$sample"_specfile
 
 ##################
@@ -142,8 +142,9 @@ cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting!
 
 # To identify candidate ORFs for each transcript
 	# INPUT: "$sample"_TrinityFS.fa
-	# OUTPUT: "$sample"_ORFs.fa
-# Identify preliminary ORFs (>300aa)
+	# OUTPUT: "$sample"_ORFs.fa ##### make this more clear - is this what it will be at the end? is this aa or nt? cds/mrna? change so all the versions are analysed in the same way for later
+	
+# Identify preliminary ORckeFs (>300aa)
 echo "...running TransDecoder.LongORFs @"
 TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
 
@@ -175,8 +176,12 @@ mv "$sample"_TrinityFS.fa.transdecoder_dir/ "$sample"_transDecoderTemp
 # Extract ORF information for future reference
 echo "...extracting ORF details @"
 grep ">" "$sample"_ORFs.fa | sed 's/>//g' > "$sample"_ORFs.info
+#/##### come back to here and check that i have selected the right files of interest - here or later?
 
 echo "...completed TransDecoder analysis at $(date) @"
+
+# Make a note in the spec file about which Exonerate parameters were used
+echo version: $(ll -lth $(which TransDecoder.LongOrfs))
 
 ############################
 ## PREPARE FASTA FILES V2 ##
