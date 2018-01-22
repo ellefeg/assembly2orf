@@ -21,6 +21,7 @@ The following publicly-available programs must be in your path:
 * exonerate, fastaremove (part of Exonerate package)
 * diamond
 * hmmscan (part of the HMMER package)
+* cd-hit-est (part of the CD-HIT package) #/##### edit throughout to insert refs to this where required. added to pairwise exonerate.
 
 To check if you have access to these programs, the following command should show you the help information (if you get an error message the program is not correctly installed).
 ```
