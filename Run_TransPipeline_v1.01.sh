@@ -126,58 +126,56 @@ cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting!
 	# INPUT: "$sample"_TrinityFS.fa #frameshift corrected file produced by Exonerate
 	# OUTPUT: "$sample"_ORFs.fa ##### make this more clear - is this what it will be at the end? is this aa or nt? cds/mrna? change so all the versions are analysed in the same way for later
 	
-# Identify preliminary ORckeFs (>300aa)
-echo "...running TransDecoder.LongORFs @"
+# Identify preliminary ORFs (>300aa)
 TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
 
 # Perform homology searches
 cd "$sample"_TrinityFS.fa.transdecoder_dir || { echo "could not move to TransDecoder directory - exiting! @"; exit 1 ; }
+# Run BLAST search
 echo "...performing BLASTx for TransDecoder @"
-$scriptlib/runDiamondBlastp.sh "$sample" longest_orfs.pep "$blastDB"
+diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
+# Run HMMSCAN
 echo "...performing hmmscan for TransDecoder @"
-$scriptlib/run_hmmscan.sh "$sample" longest_orfs.pep
+hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep
 cd .. || exit
-
 # Perform final ORF prediction
 echo "...performing final ORF prediction for TransDecoder @"
 TransDecoder.Predict -t "$sample"_TrinityFS.fa --retain_blastp_hits "$sample"_TrinityFS.fa.transdecoder_dir/"$sample"_blastp.out --retain_pfam_hits "$sample"_TrinityFS.fa.transdecoder_dir/"$sample"_domtblout
 
 # Tidy up
 echo "...tidying up after TransDecoder @"
+# Move the working files of transdecoder one level deeper
 mkdir "$sample"_TrinityFS.fa.transdecoder_dir/interim_files
 mv $(find ./"$sample"_TrinityFS.fa.transdecoder_dir -maxdepth 1 -type f) "$sample"_TrinityFS.fa.transdecoder_dir/interim_files
+
+# Move non-fasta output into output directory
 mkdir "$sample"_TrinityFS.fa.transdecoder_dir/output_files
-for filetype in cds pep bed gff3
+for filetype in bed gff3
 	do
 	mv "$sample"_TrinityFS.fa.transdecoder."$filetype" "$sample"_TrinityFS.fa.transdecoder_dir/output_files
 done
-cp "$sample"_TrinityFS.fa.transdecoder.mRNA "$sample"_TrinityFS.fa.transdecoder_dir/output_files
-mv "$sample"_TrinityFS.fa.transdecoder.mRNA "$sample"_ORFs.fa
-mv "$sample"_TrinityFS.fa.transdecoder_dir/ "$sample"_transDecoderTemp
-
-# Extract ORF information for future reference
-echo "...extracting ORF details @"
-grep ">" "$sample"_ORFs.fa | sed 's/>//g' > "$sample"_ORFs.info
-#/##### come back to here and check that i have selected the right files of interest - here or later?
-
-echo "...completed TransDecoder analysis at $(date) @"
-
-# Make a note in the spec file about which Exonerate parameters were used
-echo version: $(ll -lth $(which TransDecoder.LongOrfs))
-
-############################
-## PREPARE FASTA FILES V2 ##
-############################
-
-echo "Reformatting FASTA files for end of analysis at $(date) @"
-
-# Format TransDecoder output to look pretty
+# Format TransDecoder output to look pretty and then move into output directory
 	# INPUT: "$sample"_ORFs.fa
 	# OUTPUT: "$sample"_ORFs.fa #over-writes old version
-$scriptlib/fasta_header.sh "$sample" "$sample"_ORFs.fa n
-rm "$sample"_ORFs.fa
-mv "$sample"_clean.fa "$sample"_ORFs.fa
-echo "Generated FASTA files ready for clustering at $(date) @"
+for filetype in cds pep mRNA
+	do
+	# Reformat results to look pretty
+	$scriptlib/fasta_header.sh "$sample" "$sample"_TrinityFS.fa.transdecoder."$filetype" n
+	rm "$sample"_TrinityFS.fa.transdecoder."$filetype"
+	mv "$sample"_clean.fa "$sample"_TrinityFS.fa.transdecoder."$filetype"
+	# Move to output directory
+	mv "$sample"_TrinityFS.fa.transdecoder."$filetype" "$sample"_TrinityFS.fa.transdecoder_dir/output_files
+done
+mv "$sample"_TrinityFS.fa.transdecoder_dir/ "$sample"_transDecoder
+
+echo "...completed TransDecoder analysis and generated FASTA files ready for clustering at $(date) @"
+
+# Make a note in the spec file about which TransDecoder parameters were used
+echo -e "Default TransDecoder analysis run with version" $(ll -lth $(which TransDecoder.LongOrfs)) "including homology evidence." >> "$sample"_specfile
+echo -e "Transdecoder BLASTp performed with" $(diamond --version) "with the following command: diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out" >> "$sample"_specfile
+echo -e "Transdecoder HMMSCAN performed with" $(hmmscan -h | head -n 2 | tail -n 1) against a Pfam-A database from" $(head -n 1 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm) "with the following command:hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep"  >> "$sample"_specfile
+
+
 
 ################
 ## TIDYING UP ##
@@ -185,15 +183,15 @@ echo "Generated FASTA files ready for clustering at $(date) @"
 
 echo "Organising final output directory"
 
-mkdir TransPipeline_interim
-for files in "$sample"_trinity.fa "$sample"_FSblastx.out "$sample"_transDecoderTemp "$sample"_ORFs.info "$sample"_exonerate_tempfiles AAD3_TrinityFS.fa
-	do
-	mv "$files" TransPipeline_interim
-done
+#/###### come back to this reorganisation once i see what the end result is
+#mkdir TransPipeline_interim
+#for files in "$sample"_trinity.fa "$sample"_FSblastx.out "$sample"_transDecoderTemp "$sample"_ORFs.info "$sample"_exonerate_tempfiles "$sample"_TrinityFS.fa
+#	do
+#	mv "$files" TransPipeline_interim
+#done
 
 echo "...output directory organised"
-echo ...output file of ORFs is "$sample"_ORFs.fa @
+echo ...output file of ORFs are "$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.[cds/mRNA/pep] @
 
-####echo "Run_TransPipeline.sh complete for $(sample) at $(date)" | mail -s "Server alert:  Run_TransPipeline.sh complete" "lfgrice@gmail.com"
 cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
 
