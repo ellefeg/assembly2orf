@@ -50,6 +50,8 @@ For BLAST searches using Diamond, you will also require an amino acid blast data
 
 # Getting started
 
+#/##### add a note to change line XXX of run_transpipeline about where the pfam-a db is
+
 Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond and hmmscan are in your path:
 ```
 {program_name} -h #or --help for diamond
