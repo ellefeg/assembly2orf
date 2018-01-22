@@ -139,12 +139,12 @@ mkdir "$sample"_tempfiles
 #Move temporary files to new directory
 
 #rename output
-mv "$sample"_exonerateFasta_FScorrected.fa "$sample"_FScorrected.fa
+mv "$sample"_exonerateFasta_FScorrected.fa "$sample"_FScorrectedonly.fa
 mv "$sample"_exonerateCigarFS.out "$sample"_FScorrected.cigar
 
-for i in "$nucleo".tab "$amino".tab "$blastOut".tab "$blasttab"_nt "$blasttab"_nt+aa "$sample"_pairedSeqTab "$sample"_exonerateTemp.out "$sample"_exonerateCigar.out "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab "$sample"_exonerateFastaAllTested.out uncorrectedgenes.fa "$sample"_TrinityFS_redundant.fa
+for i in "$nucleo".tab "$amino".tab "$blastOut".tab "$blasttab"_nt "$blasttab"_nt+aa "$sample"_pairedSeqTab "$sample"_exonerateTemp.out "$sample"_exonerateCigar.out "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab "$sample"_exonerateFastaAllTested.out uncorrectedgenes.fa "$sample"_TrinityFS_redundant.fa "$sample"_FScorrected.cigar "$sample"_FScorrectedonly.fa "$sample"_TrinityFS.fa.clstr
 	do
 	mv $i "$sample"_tempfiles
 done
 
-echo -e "Frameshift correction analysis complete at $(date).\nWhere are the output files?\n\t> Working directory: $(pwd)\n\t> Final whole-transcriptome file: "$sample"_TrinityFS.fa \n\t> Final corrected sequences only: "$sample"_FScorrected.fa\n\t> Corrected cigar output: "$sample"_FScorrected.cigar\n\t> Temporary file directory: "$sample"_tempfiles"
+echo -e "Frameshift correction analysis complete at $(date).\nWhere are the output files?\n\t> Working directory: $(pwd)\n\t> Final whole-transcriptome file: "$sample"_TrinityFS.fa \n\t> Final corrected sequences only: "$sample"_FScorrectedonly.fa (in temp dir)\n\t> Corrected cigar output: "$sample"_FScorrected.cigar (in temp dir)\n\t> Temporary file directory: "$sample"_tempfiles"
