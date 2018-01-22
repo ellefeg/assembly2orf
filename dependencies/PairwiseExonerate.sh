@@ -37,7 +37,7 @@
 ## Approach: use the "query" column of the blast hit table to pull out the nucleotide sequence information, and then use the "subject" column to pull out the amino acid sequence information
 ## NB: Columns will be {aa name} {aa seq} {nt name} {nt seq}
 ## NB: Allows for duplicates in the subject protein list (i.e. the same aa sequence can be the best hit for multiple nt queries)
-echo "Preparing pairwise query-hit table at $(date)"
+echo "Running Pairwise Exonerate at $(date)"
 
 # Renaming variables
 sample=$1	#sample short name
@@ -62,11 +62,9 @@ blasttab="$blastOut".tab	#the tabular blast query-hit file we just made
 join $blasttab $nucleotab | sed 's/ /\t/g' | sort -k2,2 > "$blasttab"_nt
 # Merge "$blasttab"_nt and $aminotab
 ## NB: Columns will be {aa name} {nt name} {nt seq} {aa seq}
-echo "...adding amino acid data to table"
 join "$blasttab"_nt $aminotab -1 2 -2 1 | sed 's/ /\t/g' > "$blasttab"_nt+aa
 # Arrange columns
 ## NB: Columns will be {aa name} {aa seq} {nt name} {nt seq}
-echo "...reorganising sequence table"
 awk '{OFS="\t"; print $1, $4, $2, $3}' "$blasttab"_nt+aa > "$sample"_pairedSeqTab
 # Pairwise sequence table is complete
 echo -e "Pairwise sequence table "$sample"_pairedSeqTab complete at $(date).\\n"
@@ -80,7 +78,6 @@ echo "Commencing $(wc -l < "$sample"_pairedSeqTab) Exonerate analyses at $(date)
 
 # Performs each pairwise comparison
 while read aaName aaSeq ntName ntSeq; do
-	echo "^^...analysing "$ntName""
 	echo -e ">"$aaName"\n"$aaSeq > tempAA.fa
 	echo -e ">"$ntName"\n"$ntSeq > tempNT.fa
 	
@@ -102,12 +99,11 @@ done < "$sample"_pairedSeqTab
 # Extract all Cigar alignments
 echo -e "\nExtracting Cigar output"
 grep "cigar:" "$sample"_exonerateTemp.out | sort | uniq > "$sample"_exonerateCigar.out #extract all unique Cigar rows
-echo "...extracted $(grep -c "cigar:" "$sample"_exonerateCigar.out) alignments. NB: $(($(grep -c "cigar:" "$sample"_exonerateTemp.out)-$(grep -c "cigar:" "$sample"_exonerateCigar.out))) duplicates removed."
 # Extract only Cigar alignments with frameshift correction
 ## NB: A frameshift correction has occurred if the Cigar code contains "D" or "I" (i.e. a deletion/insertion relative to the reference)
 grep "cigar:" "$sample"_exonerateCigar.out | cut -f 6,11- -d " " | sed 's/ /\t/' | awk -F"\t" '$2 ~ /D|I/' > "$sample"_exonerateCigarFS.out
 echo -e "There are $(wc -l < "$sample"_exonerateCigarFS.out) frameshift-corrected sequences with an average of $(cut -f 2 "$sample"_exonerateCigarFS.out | sed 's/ //g;s/[0-9]//g' | sed 's/DI/x/g;s/ID/y/g' | sed 's/M//g' | awk '{ print length }' | awk '{sum+=$1} END {print sum / NR}') frameshifts each.\n"
-# Get list of changed genes
+# Get non-redundant list of changed genes
 cut -f 1 "$sample"_exonerateCigarFS.out | sort -k1,1 | uniq > "$sample"_FScorrectedgenes.list
 
 # Extract fasta sequences 
@@ -116,7 +112,6 @@ grep -v "cigar:" "$sample"_exonerateTemp.out | fasta_formatter -w 0 | fasta_form
 #Extract only fasta sequences with frameshift correction
 grep -v "cigar:" "$sample"_exonerateTemp.out | fasta_formatter -w 0 | fasta_formatter -t | sed 's/ (/\t/' | sed 's/ //g' | awk '{print $1,$3}' | sort | uniq | sed 's/ /\t/g' | sort -k1,1 > "$sample"_exonerateFastaAll.tab
 join "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab | sed 's/ /\t/g' | sed 's/^/>/g' | sed 's/\t/\n/g' > "$sample"_exonerateFasta_FScorrected.fa
-echo -e "...extracted $(grep -c ">" "$sample"_exonerateFasta_FScorrected.fa) edited sequences. NB: $(($(grep -c ">" "$sample"_exonerateTemp.out)-$(grep -c ">" "$sample"_exonerateFastaAllTested.out))) duplicates removed.\n"
 
 ##############################################
 ###  Merge Changed + Unchanged Sequences   ###
@@ -130,8 +125,7 @@ cat "$sample"_exonerateFasta_FScorrected.fa >> "$sample"_TrinityFS_redundant.fa
 cd-hit-est -i "$sample"_TrinityFS_redundant.fa -o "$sample"_TrinityFS.fa -c 1
 
 # Exonerate analysis is complete
-echo "Exonerate runs complete at $(date)."
-echo -e "...started with $(wc -l < "$sample"_pairedSeqTab) sequences, analysed $(grep -c ">" "$sample"_exonerateFastaAllTested.out) and ended with $(grep -c ">" "$sample"_exonerateFasta_FScorrected.fa) edited sequences\n"
+echo -e "Exonerate runs complete at $(date). Run statistics:\n\t>Number of starting sequences: $(grep -c ">" "$nucleo")\n\t>Number of BLAST hits: $(wc -l < "$sample"_pairedSeqTab)\n\t>Number of frameshift-corrected sequences: $(grep -c ">" "$sample"_exonerateFasta_FScorrected.fa)\n\t>Total non-redundant sequence set (changed + unchanged): $(grep -c ">" "$sample"_TrinityFS.fa)"
 
 #################
 ###  Tidy Up  ###
