@@ -60,8 +60,7 @@ fi
 
 # This spec file will contain information about the run, intended for reproducibility/writing up methods
 touch "$sample"_specfile
-echo "$sample" >> "$sample"_specfile
-echo date of analysis is $(date) >> "$sample"_specfile
+echo -e "$sample""\nanalysis date: $(date)" >> "$sample"_specfile
 
 #--------------------------
 # Prepare FASTA files
@@ -70,8 +69,7 @@ echo date of analysis is $(date) >> "$sample"_specfile
 echo "...reformatting raw transcriptome FASTA file @"
 
 # Make a note in the spec file about which original FASTA file was used
-echo "$sample" analysis used input file "$trinity" which contains $(wc -c "$trinity" | awk '{print $1}') bytes >> "$sample"_specfile
-echo >> "$sample"_specfile
+echo -e "Input file: ""$trinity"" ("$(wc -c "$trinity" | awk '{print $1}')" bytes)" >> "$sample"_specfile
 
 # Format Trinity file to look pretty (and contain sample name in header)
 	# INPUT: "$trinity"
@@ -80,8 +78,7 @@ $scriptlib/fasta_header.sh "$sample" "$trinity" y
 mv "$sample"_clean.fa "$sample"_trinity.fa
 
 # Make a note in the spec file about how the original FASTA file was modified
-echo the file "$trinity" was formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1)
-echo >> "$sample"_specfile
+echo -e Reformatting of "$trinity" performed by fasta_formatter $(fasta_formatter -h | head -n 2 | tail -n 1) >> "$sample"_specfile
 
 #########################
 ## PRE-EXONERATE BLAST ##
@@ -96,11 +93,7 @@ diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt
 echo "...BLASTX complete at $(date) @"	
 
 # Make a note in the spec file about which BLAST parameters were used
-echo pre-Exonerate BLAST used the following parameters: >> "$sample"_specfile
-diamond --version >> "$sample"_specfile
-echo diamond was run with the following command: >> "$sample"_specfile
-echo diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out >> "$sample"_specfile
-echo >> "$sample"_specfile
+echo -e "Pre-Exonerate BLASTx performed with" $(diamond --version) "with the following command:\ndiamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out" >> "$sample"_specfile
 
 ###############
 ## EXONERATE ##
@@ -116,20 +109,9 @@ $scriptlib/PairwiseExonerate.sh "$sample" "$sample"_FSblastx.out "$sample"_trini
 # Rename temporary directory
 mv "$sample"_tempfiles "$sample"_exonerate_tempfiles
 
-# Move temporary files
-for i in "$sample"_FScorrected.fa "$sample"_FScorrected.cigar
-do
-	mv "$i" "$sample"_exonerate_tempfiles
-done
-
-echo "...completed Exonerate analysis at $(date) @"
-
 # Make a note in the spec file about which Exonerate parameters were used
-echo Exonerate used the following parameters: >> "$sample"_specfile
-echo files were formatted with fasta_formatter, $(fasta_formatter -h | head -n 2 | tail -n 1) >> "$sample"_specfile
-echo exonerate was run with this command: >> "$sample"_specfile
-echo exonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo ">%ti (%tab - %tae)\n%tcs\n" >> "$sample"_specfile
-echo fasta files were filtered using $(fasta_formatter | head -n 1) >> "$sample"_specfile
+echo -e "Frameshift correction performed with" $(exonerate | head -n 1) "with the following command:\nexonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo" "\">%ti (%tab - %tae)\\\n%tcs\\\n\"" >> "$sample"_specfile
+echo -e "Frameshift correction also employed fasta_formatter ("$(fasta_formatter -h | head -n 2 | tail -n 1)") and cd-hit-est (version" $(cd-hit-est -h | head -n 1)")" >> "$sample"_specfile 
 
 ##################
 ## TRANSDECODER ##
@@ -141,7 +123,7 @@ echo "Identifying ORFs with TransDecoder at $(date) @"
 cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
 
 # To identify candidate ORFs for each transcript
-	# INPUT: "$sample"_TrinityFS.fa
+	# INPUT: "$sample"_TrinityFS.fa #frameshift corrected file produced by Exonerate
 	# OUTPUT: "$sample"_ORFs.fa ##### make this more clear - is this what it will be at the end? is this aa or nt? cds/mrna? change so all the versions are analysed in the same way for later
 	
 # Identify preliminary ORckeFs (>300aa)
