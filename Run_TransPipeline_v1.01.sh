@@ -13,7 +13,7 @@
 # Updated to run on Asellus
 # ------------------------------------------------------------------
 
-echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @" #####maybe change the name
+echo "Welcome to assembly2orf.sh v01.01. It is currently $(date) @"
 
 ####################
 ## INITIALISATION ##
@@ -43,6 +43,7 @@ echo "...generating sample-specific working directory @"
 
 # Move to working directory
 cd "$wkdir" || { echo "Could not move to wkdir - exiting! @"; exit 1 ; }
+
 # Create sample-specific directory
 if [ -d "$wkdir"/"$sample" ]
 then
@@ -60,7 +61,7 @@ fi
 
 # This spec file will contain information about the run, intended for reproducibility/writing up methods
 touch "$sample"_specfile
-echo -e "$sample""\nanalysis date: $(date)" >> "$sample"_specfile
+echo -e "Sample:\t""$sample""\nAnalysis date:\t$(date)" >> "$sample"_specfile
 
 #--------------------------
 # Prepare FASTA files
@@ -69,16 +70,18 @@ echo -e "$sample""\nanalysis date: $(date)" >> "$sample"_specfile
 echo "...reformatting raw transcriptome FASTA file @"
 
 # Make a note in the spec file about which original FASTA file was used
-echo -e "Input file: ""$trinity"" ("$(wc -c "$trinity" | awk '{print $1}')" bytes)" >> "$sample"_specfile
+echo -e "Input file:\t""$trinity"" ("$(wc -c "$trinity" | awk '{print $1}')" bytes)" >> "$sample"_specfile
 
 # Format Trinity file to look pretty (and contain sample name in header)
 	# INPUT: "$trinity"
-	# OUTPUT: "$sample"_trinity.fa
+	# OUTPUT: "$sample"_trinityinput.fa
 $scriptlib/fasta_header.sh "$sample" "$trinity" y
-mv "$sample"_clean.fa "$sample"_trinity.fa
+mv "$sample"_clean.fa "$sample"_trinityinput.fa
 
 # Make a note in the spec file about how the original FASTA file was modified
-echo -e Reformatting of "$trinity" performed by fasta_formatter $(fasta_formatter -h | head -n 2 | tail -n 1) >> "$sample"_specfile
+#echo -e "\nSTEP 1: SAMPLE REFORMATTING\n	\
+#	Tool:\tfasta_formatter ($(fasta_formatter -h | head -n 2 | tail -n 1))\n"	\
+#	>> "$sample"_specfile
 
 #########################
 ## PRE-EXONERATE BLAST ##
@@ -87,13 +90,17 @@ echo -e Reformatting of "$trinity" performed by fasta_formatter $(fasta_formatte
 echo "Running BLASTX in preparation for Exonerate at $(date) @"
 
 # Identify best protein BLAST hits for each transcript
-	# INPUT: "$sample"_trinity.fa
+	# INPUT: "$sample"_trinityinput.fa
 	# OUTPUT: "$sample"_FSblastx.out
-diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
+diamond blastx --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
+#####diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
 echo "...BLASTX complete at $(date) @"	
 
 # Make a note in the spec file about which BLAST parameters were used
-echo -e "Pre-Exonerate BLASTx performed with" $(diamond --version) "with the following command:\ndiamond blastx --sensitive --db "$blastDB" --query "$sample"_trinity.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out" >> "$sample"_specfile
+#echo -e "\nSTEP 2a: PRE-EXONERATE BLASTx\n	\
+#	Tool:\t$(diamond --version)\n	\
+#	Command:\tdiamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa #--outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out""\n"	\
+#	>> "$sample"_specfile
 
 ###############
 ## EXONERATE ##
@@ -102,16 +109,21 @@ echo -e "Pre-Exonerate BLASTx performed with" $(diamond --version) "with the fol
 echo "Correcting frameshifts with Exonerate at $(date) @"
 
 # Correct any frameshifts in each transcript
-	# INPUT: "$sample"_FSblastx.out and "$sample"_trinity.fa
+	# INPUT: "$sample"_FSblastx.out and "$sample"_trinityinput.fa
 	# OUTPUT: "$sample"_TrinityFS.fa
-$scriptlib/PairwiseExonerate.sh "$sample" "$sample"_FSblastx.out "$sample"_trinity.fa "$blastFA"
+$scriptlib/PairwiseExonerate.sh "$sample" "$sample"_FSblastx.out "$sample"_trinityinput.fa "$blastFA"
 
 # Rename temporary directory
 mv "$sample"_tempfiles "$sample"_exonerate_tempfiles
+mv "$sample"_FSblastx.out "$sample"_exonerate_tempfiles
 
 # Make a note in the spec file about which Exonerate parameters were used
-echo -e "Frameshift correction performed with" $(exonerate | head -n 1) "with the following command:\nexonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo" "\">%ti (%tab - %tae)\\\n%tcs\\\n\"" >> "$sample"_specfile
-echo -e "Frameshift correction also employed fasta_formatter ("$(fasta_formatter -h | head -n 2 | tail -n 1)") and cd-hit-est (version" $(cd-hit-est -h | head -n 1)")" >> "$sample"_specfile 
+#echo -e "\nSTEP 2b: EXONERATE\n	\
+#	Tool:\t$(exonerate | head -n 1)\n	\
+#	Tool:\tfasta formatter $(fasta_formatter -h | head -n 2 | tail -n 1)\n	\
+#	Tool:\tCD-HIT-EST (version"$(cd-hit-est -h | head -n 1)") (Used for 100% similarity filtering)\n	\
+#	Command:\texonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo {see manual}"	\
+#	>> "$sample"_specfile
 
 ##################
 ## TRANSDECODER ##
@@ -133,7 +145,8 @@ TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
 cd "$sample"_TrinityFS.fa.transdecoder_dir || { echo "could not move to TransDecoder directory - exiting! @"; exit 1 ; }
 # Run BLAST search
 echo "...performing BLASTx for TransDecoder @"
-diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
+diamond blastp --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
+#####diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
 # Run HMMSCAN
 echo "...performing hmmscan for TransDecoder @"
 hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep
@@ -159,7 +172,7 @@ done
 	# OUTPUT: "$sample"_ORFs.fa #over-writes old version
 for filetype in cds pep mRNA
 	do
-	# Reformat results to look pretty
+	# Reformat results to look pretty #/##### come back to this
 	$scriptlib/fasta_header.sh "$sample" "$sample"_TrinityFS.fa.transdecoder."$filetype" n
 	rm "$sample"_TrinityFS.fa.transdecoder."$filetype"
 	mv "$sample"_clean.fa "$sample"_TrinityFS.fa.transdecoder."$filetype"
@@ -171,27 +184,90 @@ mv "$sample"_TrinityFS.fa.transdecoder_dir/ "$sample"_transDecoder
 echo "...completed TransDecoder analysis and generated FASTA files ready for clustering at $(date) @"
 
 # Make a note in the spec file about which TransDecoder parameters were used
-echo -e "Default TransDecoder analysis run with version" $(ll -lth $(which TransDecoder.LongOrfs)) "including homology evidence." >> "$sample"_specfile
-echo -e "Transdecoder BLASTp performed with" $(diamond --version) "with the following command: diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out" >> "$sample"_specfile
-echo -e "Transdecoder HMMSCAN performed with" $(hmmscan -h | head -n 2 | tail -n 1) against a Pfam-A database from" $(head -n 1 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm) "with the following command:hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep"  >> "$sample"_specfile
+#echo -e "\nSTEP 3: TRANSDECODER\n	\
+#	Tool:\tTransDecoder (run with default parameters and homology evidence)\n	\
+#	Tool:\t$(diamond --version)\n	\
+#	BLASTp Command:\tdiamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out""\n	\
+#	Tool:\t$(hmmscan -h | head -n 2 | tail -n 1)\n	\
+#	PFAM-A Database:\t"$(head -n 1 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm)" at /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm\n	\
+#	HMMSCAN Command:\thmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep""\n	"\
+#	>> "$sample"_specfile
 
+#######################
+## FILTER REDUNDANCY ##
+#######################
 
+echo -e filtering sequence redundancy with BLASTp at $(date) @
+## NB: This approach is based on that from Ono et al. BMC Genomics (2015) 16:1031
+
+# Make sure I am back in the right place
+cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
+mkdir "$wkdir"/"$sample"/redundancy
+cd "$wkdir"/"$sample"/redundancy || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
+
+# Run BLAST search
+#####diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
+diamond blastp --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
+
+# Perform redundancy filtration
+$scriptlib/BLASTRedFilt.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
+mv "$sample"_representatives.fa "$sample"_representatives.pep.fa
+
+# Extract the same representatives from .cds and .mrna files
+grep ">" "$sample"_representatives.pep.fa | sed 's/>//g' | sort > "$sample"_representatives.list
+fasta_formatter -t -i "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.cds | sort -k1,1 > ./"$sample"_allsequences.cds.tab
+fasta_formatter -t -i "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.mRNA | sort -k1,1 > ./"$sample"_allsequences.mRNA.tab
+# make a table of sequences of interest
+join "$sample"_representatives.list "$sample"_allsequences.cds.tab | sed 's/ /\t/g' | awk '{print $1, $NF}' | sed 's/ /\t/g' > "$sample"_seqofinterest.cds.tab
+join "$sample"_representatives.list "$sample"_allsequences.mRNA.tab | sed 's/ /\t/g' | awk '{print $1, $NF}' | sed 's/ /\t/g' > "$sample"_seqofinterest.mRNA.tab
+# convert to fasta 
+sed 's/^/>/g' "$sample"_seqofinterest.mRNA.tab | sed 's/\t/\n/g' > "$sample"_representatives.mRNA.fa
+sed 's/^/>/g' "$sample"_seqofinterest.cds.tab | sed 's/\t/\n/g' > "$sample"_representatives.cds.fa
+
+# Tidy up
+for i in "$sample"_representatives.list "$sample"_allsequences.cds.tab "$sample"_allsequences.mRNA.tab "$sample"_seqofinterest.cds.tab "$sample"_seqofinterest.mRNA.tab
+	do
+	rm $i
+done
+
+# Make a note in the spec file about the redundancy filtration step
+#echo -e "\nSTEP 4: REDUNDANCY FILTRATION\n	\
+#	Tool:\t$(diamond --version)\n	\
+#	BLASTp Command:\tdiamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out\n	\
+#	Tool:\t$(fastaremove | head -n 1)\n	\
+#	Tool:\t$(fasta_formatter -h | head -n 2 | tail -n 1)\n	"\
+#	 >> "$wkdir"/"$sample"/"$sample"_specfile
 
 ################
 ## TIDYING UP ##
 ################
 
+# Make sure I am back in the right place
+cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
+
 echo "Organising final output directory"
 
-#/###### come back to this reorganisation once i see what the end result is
-#mkdir TransPipeline_interim
-#for files in "$sample"_trinity.fa "$sample"_FSblastx.out "$sample"_transDecoderTemp "$sample"_ORFs.info "$sample"_exonerate_tempfiles "$sample"_TrinityFS.fa
-#	do
-#	mv "$files" TransPipeline_interim
-#done
+mv redundancy "$sample"_redundancy
+mkdir "$sample"_exonerate_tempfiles/interim_files
+mv $(find ./"$sample"_exonerate_tempfiles -maxdepth 1 -type f) "$sample"_exonerate_tempfiles/interim_files
+mv "$sample"_exonerate_tempfiles "$sample"_exonerate
+mkdir "$sample"_exonerate/output_files
+mv "$sample"_TrinityFS.fa "$sample"_exonerate/output_files
+mkdir "$sample"_input
+mv "$sample"_trinityinput.fa "$sample"_input
 
 echo "...output directory organised"
 echo ...output file of ORFs are "$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.[cds/mRNA/pep] @
-
 cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
 
+# Make a note in the spec file about the final output
+#echo -e "\nANALYSIS OF ""$sample"" COMPLETE\n	\
+#	Input data folder:\t""$sample""_input\n	\
+#	Input data file:\t""$sample""_trinityinput.fa\n	\
+#	Frameshift correction folder:\t""$sample""_exonerate/output_files\n	\
+#	Frameshift output file:\t""$sample""_TrinityFS.fa\n	\
+#	ORF prediction folder:""$sample""_transDecoder/output_files\n	\
+#	ORF prediction files:\t""$sample""_TrinityFS.fa.transdecoder.[bed/cds/gff3/mRNA/pep]\n	\
+#	Redundancy filtration folder:\t""$sample""_redundancy\n	\
+#	Redundancy filtration output:\t""$sample""_representatives.[cds/mRNA/pep].fa"	\
+#	>> "$wkdir"/"$sample"/"$sample"_specfile
