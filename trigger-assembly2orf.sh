@@ -41,4 +41,3 @@ while read -r sample_name transcripts; do
 	cd "$workdir" || exit 1
 	"$scriptlib"/assembly2orf.sh "$sample_name" "$transcripts" "$wkdir" "$scriptlib" "$blastdb" "$blastfasta"
 done < "$paramfile"
-
