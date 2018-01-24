@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # ------------------------------------------------------------------
 # Author: Laura Grice
 # Date: 26 July 2017
@@ -66,3 +67,4 @@ mv "$sample"_header3 "$sample"_clean.fa
 # ------------------------------------------------------------------
 
 echo "Completed fasta_header.sh at $(date)"
+

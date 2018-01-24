@@ -1,136 +1,133 @@
 # assembly2orf
-*Laura Grice - Updated 16 January 2018*
-A transcriptome preparation pipeline which converts assembled transcriptomes (for example, Trinity output) into frameshift-corrected, filtered ORFs. ####
-NOTE TO SELF: #### rows = changed but still need to check after editing everything
+
+*Laura Grice - Updated 24 January 2018*
+
+A transcriptome preparation pipeline which converts assembled transcriptomes (for example, Trinity output) into frameshift-corrected, redundancy-filtered ORFs.
+
+----
+
+# Quick start
+```
+nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
+
+# Location of longest representative metazoan sequence database:
+/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Asel25pc+Metazoa_longest/metazoan_longreps.dmnd 
+# Location of longest representative metazoan sequence file:
+/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Asel25pc+Metazoa_longest/metazoan_longreps.fa
+```
+
 ----
 
 # Introduction
-By calling **TriggerPipeline.sh**, you can convert any number of **nucleotide.fa** files (for example, output from Trinity) into sets of filtered, frameshift-corrected best ORFs. ####EDIT IF REDUNDANCY FILTRATION ADDED#### 
+**assembly2orf** is a package which will convert any number of **nucleotide.fa** files (e.g. Trinity output) into sets of filtered, frameshift-corrected best ORFs. The package includes several files/folders (pictured below) but the user need only interact with **trigger-assembly2orf.sh**. 
 
-The user will provide a file called **input_param** which lists all the samples to analyse, and will call the program **TriggerPipeline.sh**. The latter program reads **input_param** line-by-line, and analyses each sample in turn by automatically calling the script **Run_TransPipeline.sh** (which will in turn call several other pre-existing and in-house scripts). To know more, see the **Software Overview** section below.
+<pre>
+assembly2orf/
+├── README.md
+├── trigger-assembly2orf.sh
+└── dependences
+     ├──── assembly2orf.sh
+     ├──── fasta_header.sh
+     ├──── filter_homologues.sh
+     └──── PairwiseExonerate.sh
+</pre>
+
+The user will create a sample description file (referred to here as **sample_input**, but it can be named anything and saved anywhere) which provides a brief name and file location for each fasta file of interest to be analysed. To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
 
 # What is included
-Here i will list the things that should be bundled together in the package before it can run
+* README.md - this readme file
+* trigger-assembly2orf.sh - the script which the user will call to run the package
+* dependencies/assembly2orf.sh - the script which does most of the heavy lifting to analyse each sample in turn
+* dependencies/fasta_header.sh - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
+* dependencies/filter_homologues.sh - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
+* dependencies/PairwiseExonerate.sh - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
 
 # Software dependencies
 
-SOME OF THIS INFO WOULD BE BETTER IN THE "GETTING STARTED" SECTION ####
 The following publicly-available programs must be in your path:
 * TransDecoder.LongOrfs, TransDecoder.Predict (part of the Transdecoder package)
 * fasta_formatter (part of FASTX Toolkit)
 * exonerate, fastaremove (part of Exonerate package)
 * diamond
 * hmmscan (part of the HMMER package)
+* cd-hit-est (part of the CD-HIT package) #/##### edit throughout to insert refs to this where required. added to pairwise exonerate.
 
-To check if you have access to these programs, the following command should show you the help information (if you get an error message the program is not correctly installed).
+To check if you have access to these programs, the following command should print the location of the program (if you do not get any output, the program is not installed)
 ```
 which {program_name}
 # if it prints a file string, the program is installed
 # if you get no response, the program is not installed
 ```
 
-Most users will run **assembly2orf** on the Asellus server and will need to make minimal changes before running the program. In this case, the only scripts you need to be concerned with are located in the main **assembly2orf** directory and are called:
-* Run_TransPipeline.sh
-* TriggerPipeline.sh
-
-Before you modify these files, you will need to copy them to your working directory (see **Getting Started** below)####
-
-There are additional custom scripts that **assembly2orf** requires to run. If you are using the Asellus server you should already have access to these scripts and won't have to change anything. However, if you want to run your own local version, you must edit **Run_TransPipeline.sh**
-
-**assembly2orf** also contains a set of custom scripts (`/assembly2orf/dependencies/`). If you are running **assembly2orf** from `/home/laura/scripts/pipelines/assembly2orf` on the Asellus server, you will automatically have access to these scripts. However, if you want to run your own local version you will need to edit the filepaths specified at the lines of **Run_TransPipeline.sh** specified in brackets below:
-* fasta_header.sh (lines 64, 161)
-* runDiamondBlastx.sh (line 78)
-* PairwiseExonerate.sh (line 92)
-* runDiamondBlastp.sh (line 124)
-* run_hmmscan.sh (line 126)
-
-Information about how to do this is given in the **Getting Started** section below.
-
-For BLAST searches using Diamond, you will also require an amino acid blast database (.dmnd format), and also the set of amino acid fasta sequences that were used to build this database. If you want to use the default databases (containing the longest representative sequences from all asellid gene families found in at least 25% of species, plus the longest representative gene family members from the Ensembl Metazoa database) you don't have to make any changes, but if you have a custom database, you will have to edit lines 28 and 29 of **Run_TransPipeline.sh** to add the location of your amino acid fasta file and associated blast diamond database.
-
 # Getting started
 
-#/##### add a note to change line XXX of run_transpipeline about where the pfam-a db is
+If required, download the **assembly2orf** package from Github. Unzip. Alternatively, find this package on the server. Make a note of the entire file string of the enclosed **/dependencies** directory as you will require this information to call **trigger-assembly2orf.sh** 
 
-Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond and hmmscan are in your path:
+Make sure all scripts are executable
 ```
-{program_name} -h #or --help for diamond
-```
-
-Create a single working directory where your files will be saved. It can have any name and be located wherever you like: the program will generate separate directories for each sample in turn:
-```
-mkdir /path/to/directory
-```
-
-Copy **Trigger_Pipeline.sh** and **Run_TransPipeline.sh** to your working directory BEFORE you modify these files. Do not change the names of the scripts.
-```
-cp /home/laura/scripts/pipelines/assembly2orf/Run_TransPipeline.sh /path/to/directory
-cp /home/laura/scripts/pipelines/assembly2orf/Trigger_Pipeline.sh /path/to/directory
+chmod 777 trigger_assembly2orf.sh
+chmod 777 dependencies/assembly2orf.sh
+chmod 777 dependencies/fasta_header.sh
+chmod 777 dependencies/filter_homologues.sh
+chmod 777 dependencies/PairwiseExonerate.sh
 ```
 
-If you will be running **assembly2orf** on the Asellus server, navigate to the `/dependencies` directory and check if you have run permissions.
+Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond, hmmscan and cd-hit-est are in your path (see "Software dependencies" above).
 ```
-cd /home/laura/scripts/pipelines/assembly2orf/dependencies
-ls -lth
-# each row should start with the following four characters: -rwx
-# the x means you can execute the script
+which {program}
 ```
 
-Alternatively, if you will be running your own local version you will need to edit the following lines of your new copy of **Run_TransPipeline.sh**:
-* fasta_header.sh (lines 64, 161)
-* runDiamondBlastx.sh (line 78)
-* PairwiseExonerate.sh (line 92)
-* runDiamondBlastp.sh (line 124)
-* run_hmmscan.sh (line 126)
-
+Check that you have access to the required Pfam-A file
 ```
-vi +{linenumber} Run_TransPipeline.sh # This will take you directly to the correct line
-i #now use the cursor/keyboard to edit the filestring
-<escape>
-:wq #this will save the changes
+head -n 3 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm
+# if you get an error message you must:
+## find the file or download your own version from ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/
+## check with hmmscan to make sure the file works as expected
+## edit the following lines of dependencies/assembly2orf.sh with the new filestring
+vi assembly2orf.sh +152
+vi assembly2orf.sh +193
+vi assembly2orf.sh +194
 ```
 
-If you want to use your own amino acid file for BLAST searching, make a Diamond database and edit **Run_TransPipeline.sh** to specify the new filestring
+Create or choose a working directory to hold your output files. It can have any name and be located anywhere you like (**assembly2orf** will generate separate sample-specific sub-directories inside this working directory as it runs). Make a note of the entire file string of your working directory as you will require this information to call **trigger-assembly2orf.sh** 
+
+Create or choose a custom diamond blast database (.dmnd) and the exact amino acid fasta file which was used to create this database. The same files will be used at several points in the analysis:
+* as a source of reference sequences for frameshift correction
+* as a source of homology information for ORF prediction
+* to filter redundant sequences
+Make a note of the entire file string of both files as you will require this information to call **trigger-assembly2orf.sh** 
 ```
-diamond makedb --in myAAfasta.fa --db desired_database_name
-vi +28 Run_TransPipeline.sh #edit line 28 (diamond database file location) and line 29 (amino acid file location)
+# to make a custom diamond blast database
+diamond makedb --in someaminoacidfile.fa --db someaminoacidfile
 ```
 
-
-
-
-
-
-
-OPTIONAL: generate a custom BLAST fasta file and diamond blast database (.dmnd).
- 
-In your working directory, create a tab-delimited table called **input_param** which lists all your **nucleotide.fa** files: `{sample name}	{transcript}	{workdir}`
-* Sample name = abbreviated name of each sample. Usually this will be a species code (e.g. AAD3, PCG6 etc.)
-* Transcript = full filestring for each nucleotide.fa file
-* Workdir = full filestring for your working directory. This will be the same for each row.
-
-Edit the filestring in the final line (line 13) of **TriggerPipeline.sh** to contain the full and correct filestring of **input_param**. Make sure **TriggerPipeline.sh** is executable.
-```
-$ vi +13 TriggerPipeline.sh #will take you directly to the correct line
-```
-Edit lines 27-29 of **Run_TransPipeline.sh** to specifiy the correct locations of the script library, blast database and blast library sequence files (if different to current specifications). Edit line 181 of the same file to add your own email address. Make sure **Run_TransPipeline.sh** is executable and located in the same folder as **TriggerPipeline.sh** (*see note below*).
-```
-$ vi +27 Run_TransPipeline.sh
-$ vi +181 Run_TransPipeline.sh
-```
-***NOTE:** If for some reason you want to save **TriggerPipeline.sh** and **Run_TransPipeline.sh** in different locations (e.g. the trigger in your working directory and the pipeline in your scripts folder), make sure you also edit the penultimate line (line 12) of **TriggerPipeline.sh** to indicate the full filestring of **Run_TransPipeline.sh***
+Create a tab-delimited file (for example, called **sample_input**) which provides information about all your files to analyse. It is helpful to save this file in your working directory, but it can be anywhere and have any name.
+* Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
+* Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
+Make a note of the entire file string of **sample_input** as you will require this information to call **trigger-assembly2orf.sh** 
 
 Run the program with the following command:
 ```
-$ nohup ./TriggerPipeline.sh > TransPipeline_nohup.out 2>&1&
+./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa}
+# or to nohup and send output to a custom-named file
+nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
 ```
+Where
+* ./trigger-assembly2orf.sh - the full/relative filestring of the script
+* sample_input - the full/relative filestring of your sample_input file
+* working directory - the full filestring of your working directory
+* dependencies folder - the full filestring of the folder containing assembly2orf.sh, fasta_header.sh, filter_homologues.sh and PairwiseExonerate.sh
+* blast.dmnd - your custom blast database
+* blast.fa - the amino acid file used to build the custom blast database
 
 # Software overview
-**Run_TransPipeline.sh** will loop through each sample of interest specified in **input_param**. Therefore, the whole script will be run for Sample A, then again for Sample B, etc. 
+trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
+
 
 **INITIALISATION**
-* **PREPARE VARIABLES** defines a number of variables based on user/script-specified input
+* **PREPARE VARIABLES** defines a number of variables based on user-specified input
 * **PREPARE DIRECTORIES** moves to the user-specified working directory, and generates a new directory for the current sample. All new files generated by the rest of the script will be saved in this directory.
+* **PREPARE PARAMETER SPECIFICATION FILE** generates a file that will tell the user which software versions were used to run which commands and the location of the output files
 * **PREPARE FASTA FILES** re-formats the nucleotide.fa file in three different ways:
 -- Truncates fasta headers to sequence names only (i.e. remove all description after first space). Why? Some subsequent steps (`fasta_formatter -t`) can't handle multiple spaces in the headers.
 -- Converts fasta sequences from multi- to single-line. Why? It is neater and may prevent some file manipulations from breaking.
@@ -145,38 +142,50 @@ $ nohup ./TriggerPipeline.sh > TransPipeline_nohup.out 2>&1&
 **TRANSDECODER**
 * Runs TransDecoder to identify candidate ORFs (with homology information - hmmer and blast - used to retain sequences not meeting TransDecoders filtering steps. 
 
-**PREPARE FASTA FILES**
-* Re-formats the Transdecoder output as described in PREPARE FASTA FILES above
+**FILTER REDUNDANCY**
+* All ORFs are compared to a BLAST database with BLASTp. All ORFs within a sample which match the same sequence subject are considered to be homologues of one another, and therefore redundant. The sequence producing the best BLAST match (assessed by highest BIT score) to the subject is retained as the representative sequence and the others are discarded
+* Any sequences lacking BLAST hits to the database are retained in the dataset
 
 **TIDYING UP**
 * Moves all the files to a temp directory
 
 **The final output**
-* At the end, your working directory will contain a number of directories, one for each sample. In each directory, you will see:
--- {sample}_TrinityFS.fa: the re-formatted version of the input file. There is no new information here, just the headers are neater etc. (see PREPARE FASTA FILES above)
--- {sample}_ORFs.fa: the final output file (mRNA format; not CDS)
--- TransPipeline_interim: directory containing all the temp files
-    1.  OPTIONAL: {sample}_trinity.fa - <for some samples this file is here, elsewhere it is back a directory, not sure why?
-    2.  {sample}_FSblastx.out - the results of the blast search used to work out which sequences to use for frameshift correction
-    3.  {sample}_exonerate_tempfiles - directory with exonerate output
-    4.  {sample}_transDecoderTemp - directory with transdecoder output
-    5.  {sample}_ORFs.info - the header information produced by TransDecoder, just in case the truncated names in the final output file are insufficient
-
-# Next steps
-*This section added 6 December 2017*
-Based on the paper by Ono et al. 2013 (BMC Genomics 2015 16:1031), I tested various methods of filtering transcriptomes. By reducing the redundancy in a transcriptome dataset, you remove sequences that are too similar to one another to be able to be properly mapped/distinguished between in DGE analysis. By removing this data, DGE outcomes were found to be improved. The method I settled on involves BLASTing a sequence dataset (within a species) against a reference database, and for all new sequences with a top BLAST hit to SeqA, take only the longest sequence. The results of this analysis (nt or aa) can be found here:
-/home/laura/data/inhouse_data/TransPipeline/1_pipeline/OnoFiltering/
+* At the end your working directory will contain one directory per sample. In each sample directory you will see the following files:
+<pre>
+{sample}
+├── {sample}_exonerate
+│   ├──── interim_files
+│   └──── output_files
+│       └────── {sample}_TrinityFS.fa
+├── {sample}_input
+│   └──── {sample}_trinityinput.fa
+├── {sample}_redundancy
+│   ├──── {sample}_TrinityFS.fa.transdecoder.pep_blastp.out
+│   ├──── {sample}_representatives.cds.fa
+│   ├──── {sample}_representatives.mRNA.fa
+│   └──── {sample}_representatives.pep.fa
+├── {sample}_specfile
+└── {sample}_transDecoder
+    ├──── interim_files
+    └──── output_files
+        ├────── {sample}_TrinityFS.fa.transdecoder.bed
+        ├────── {sample}_TrinityFS.fa.transdecoder.cds
+        ├────── {sample}_TrinityFS.fa.transdecoder.gff3
+        ├────── {sample}_TrinityFS.fa.transdecoder.mRNA
+        └────── {sample}_TrinityFS.fa.transdecoder.pep
+</pre>
+You will most likely be interested in the contents of either:
+* {sample}_transDecoder/output_files/ - the full set of ORFs
+* {sample}_redundancy - these ORFs after homology-based redundancy filtration
 
 # To do
-* Remove the need for new users to edit the scripts to add e.g. path names, by allowing this to be specified elsewhere e.g. in **TriggerPipeline.sh**
-* The nohup file generated by this program is annoying to parse. I have it set so you can skip all the Exonerate lines if you do "grep -v "\^" {nohupfile} " but it is still hard because of the blast and hmmer hits that are written to file (and are not easily parse-out-able). It'd be good to work out how to split these logs up into something more readable (different files for each step? append some kind of code in the log so you can remove everything BETWEEN TWO LINES OF TEXT?
+* The nohup file generated by this program is annoying to parse. I have it set so you can skip all the Exonerate lines if you do "grep -v "\^" {nohupfile} " but it is still hard because of the blast and hmmer hits that are written to file (and are not easily parse-out-able). It'd be good to work out how to split these logs up into something more readable (different files for each step? append some kind of code in the log so you can remove everything between the two lines of text?
 
 # Version history
 v00.01 - 28 July 2017
 v00.02 - 13 August 2017
 * Original incorrect $blastDB and $blastFA files (erroneously containing a mix of nucleotide and amino acid sequences) were replaced with correct (amino acid only) sequences. No change to the script, just to the files specified in lines 28-29 of Run_TransPipeline.sh.
-
-v01.00 - 16 January 2018
+v01.00 - 16-24 January 2018
 * Updated for new Asellus server and to make the program into more of a "bundle" that can be run by anyone
-* Changed pipeline name from TransPipeline to assembly2orf
+* Updated text based on new pipeline implementation
 
