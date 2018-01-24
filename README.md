@@ -1,6 +1,6 @@
 # assembly2orf
 
-*Laura Grice - Updated 16 January 2018*
+*Laura Grice - Updated 24 January 2018*
 
 A transcriptome preparation pipeline which converts assembled transcriptomes (for example, Trinity output) into frameshift-corrected, redundancy-filtered ORFs.
 
@@ -61,47 +61,50 @@ which {program_name}
 
 # Getting started
 
+If required, download the **assembly2orf** package from Github. Unzip. Alternatively, find this package on the server. Make a note of the entire file string of the enclosed **/dependencies** directory as you will require this information to call **trigger-assembly2orf.sh** 
+
+Make sure all scripts are executable
+```
+chmod 777 trigger_assembly2orf.sh
+chmod 777 dependencies/assembly2orf.sh
+chmod 777 dependencies/fasta_header.sh
+chmod 777 dependencies/filter_homologues.sh
+chmod 777 dependencies/PairwiseExonerate.sh
+```
+
 Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond, hmmscan and cd-hit-est are in your path (see "Software dependencies" above).
-
-Check that trigger-assembly2orf.sh, dependencies/assembly2orf.sh, dependencies/fasta_header.sh, dependencies/filter_homologues.sh and dependencies/PairwiseExonerate.sh are executable
 ```
-cd path/to/dependencies
-ls -lth
-# each row should start with the following four characters: -rwx
-# the x means you can execute the script
-# if not, copy to your own directory and run
-chmod 777 {program}.sh
+which {program}
 ```
 
-Check that you have access to the Pfam A file used by this program:
+Check that you have access to the required Pfam-A file
 ```
 head -n 3 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm
-# if you get an error message you will have to find the file or download your own version from ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/
-# make sure you test it with hmmscan first to see if it works
-# then edit the following lines of dependencies/assembly2orf.sh with the new filestring
+# if you get an error message you must:
+## find the file or download your own version from ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/
+## check with hmmscan to make sure the file works as expected
+## edit the following lines of dependencies/assembly2orf.sh with the new filestring
 vi assembly2orf.sh +152
 vi assembly2orf.sh +193
 vi assembly2orf.sh +194
 ```
 
-Create a single working directory which will hold all your output files. It can have any name and be located wherever you like. When **assembly2orf** runs, it will generate separate directories for each sample within this working directory. Make a note of the *whole* file string of the directory - you will need this for the input command.
-```
-mkdir /path/to/working/directory
-```
+Create or choose a working directory to hold your output files. It can have any name and be located anywhere you like (**assembly2orf** will generate separate sample-specific sub-directories inside this working directory as it runs). Make a note of the entire file string of your working directory as you will require this information to call **trigger-assembly2orf.sh** 
 
-Generate or locate a custom amino acid fasta file and associated diamond blast database (.dmnd). These files will be used at several points:
-* as a source of sequences for frameshift correction
+Create or choose a custom diamond blast database (.dmnd) and the exact amino acid fasta file which was used to create this database. The same files will be used at several points in the analysis:
+* as a source of reference sequences for frameshift correction
 * as a source of homology information for ORF prediction
 * to filter redundant sequences
-Make a note of the *full* file string of both files - you will need them when you call the program.
+Make a note of the entire file string of both files as you will require this information to call **trigger-assembly2orf.sh** 
 ```
 # to make a custom diamond blast database
 diamond makedb --in someaminoacidfile.fa --db someaminoacidfile
 ```
- 
-In your working directory, create a tab-delimited table (for example, called **sample_input**) which lists all your **nucleotide.fa** files: `{sample name}	{transcriptome}`
-* Sample name = abbreviated name of each sample. Usually this will be a species code (e.g. AAD3, PCG6 etc.)
-* Transcriptome = full filestring for each nucleotide.fa file
+
+Create a tab-delimited file (for example, called **sample_input**) which provides information about all your files to analyse. It is helpful to save this file in your working directory, but it can be anywhere and have any name.
+* Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
+* Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
+Make a note of the entire file string of **sample_input** as you will require this information to call **trigger-assembly2orf.sh** 
 
 Run the program with the following command:
 ```
