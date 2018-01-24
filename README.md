@@ -21,6 +21,7 @@ nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {depende
 # Introduction
 **assembly2orf** is a package which will convert any number of **nucleotide.fa** files (e.g. Trinity output) into sets of filtered, frameshift-corrected best ORFs. The package includes several files/folders (pictured below) but the user need only interact with **trigger-assembly2orf.sh**. 
 
+<pre>
 assembly2orf/
 ├── README.md
 ├── trigger-assembly2orf.sh
@@ -29,6 +30,7 @@ assembly2orf/
      ├──── fasta_header.sh
      ├──── filter_homologues.sh
      └──── PairwiseExonerate.sh
+</pre>
 
 The user will create a sample description file (referred to here as **sample_input**, but it can be named anything and saved anywhere) which provides a brief name and file location for each fasta file of interest to be analysed. To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
 
