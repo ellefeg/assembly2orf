@@ -3,7 +3,7 @@
 # Author:	Laura Grice
 # Title:	trigger-assembly2orf.sh
 # Version:	v01.01
-# Goal:		To feed the samples in to Run_TransPipeline.sh. 
+# Goal:		To feed the samples in to assembly2orf.sh 
 # Requirements:	The user must have already made a tab-delimited file ("input_param") listing the sample ID and file location of each transcriptome of interest
 # Usage:	nohup ./TriggerPipeline.sh {paramfile} {wkdir} {dependencies} {blastdb} {blastfasta} > TransPipeline_nohup.out 2>&1&
 # ------------------------------------------------------------------
