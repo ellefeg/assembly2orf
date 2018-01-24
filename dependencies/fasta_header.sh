@@ -67,3 +67,4 @@ mv "$sample"_header3 "$sample"_clean.fa
 # ------------------------------------------------------------------
 
 echo "Completed fasta_header.sh at $(date)"
+
