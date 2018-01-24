@@ -148,7 +148,7 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
 
 **The final output**
 * At the end your working directory will contain one directory per sample. In each sample directory you will see the following files:
-
+<pre>
 {sample}
 ├── {sample}_exonerate
 │   ├──── interim_files
@@ -170,7 +170,7 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
         ├────── {sample}_TrinityFS.fa.transdecoder.gff3
         ├────── {sample}_TrinityFS.fa.transdecoder.mRNA
         └────── {sample}_TrinityFS.fa.transdecoder.pep
-
+</pre>
 You will most likely be interested in the contents of either:
 * {sample}_transDecoder/output_files/ - the full set of ORFs
 * {sample}_redundancy - these ORFs after homology-based redundancy filtration
