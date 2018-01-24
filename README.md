@@ -9,12 +9,20 @@ A transcriptome preparation pipeline which converts assembled transcriptomes (fo
 # Quick start
 ```
 nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
-
-# Location of longest representative metazoan sequence database:
-/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Metazoa/longest_reps/metazoan_longreps.dmnd
-# Location of longest representative metazoan sequence file:
-/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Metazoa/longest_reps/metazoan_longreps.fa
 ```
+
+For those working in-house:
+* script to run = /home/laura/scripts/assembly2orf/trigger-assembly2orf.sh
+* sample_input = DIY
+* working directory = DIY
+* dependencies folder = /home/laura/scripts/assembly2orf/dependencies
+* blastDB (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
+* blastAA (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
+
+*How were these BLAST files generated?*
+1. Download Ensembl Metazoa data (release 36, June 8th 2017), concatenate files together, perform all-vs-all BLAST, run Silix and flag each sequence with its gene family ID (by Tristan, see file /ngs/db/ensembl_metazoa/pep/cmd)
+2. Within each species, pull out the longest representative of each gene family
+3. Build a blast DB 
 
 ----
 
