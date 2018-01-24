@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # ------------------------------------------------------------------
 # Author:	Laura Grice
 # Title:	assembly2orf.sh
@@ -13,8 +14,6 @@
 # Updated to run on Asellus
 # ------------------------------------------------------------------
 
-echo "Commencing assembly2orf.sh v01.01 at $(date)"
-
 ####################
 ## INITIALISATION ##
 ####################
@@ -22,8 +21,6 @@ echo "Commencing assembly2orf.sh v01.01 at $(date)"
 #--------------------------
 # Prepare variables
 #--------------------------
-
-echo "...setting variables at $(date) @"
 
 # User-supplied variables
 sample=$1	# Brief sample name (sample-specific)
@@ -37,7 +34,7 @@ blastFA=$6	# Location of the fasta file used to create the blast database
 # Prepare directories
 #--------------------------
 
-echo "...generating sample-specific working directory @"
+echo Commencing assembly2orf.sh v01.01 for sample "$sample" at $(date) @
 
 cd "$wkdir" || { echo "Could not move to wkdir - exiting! @"; exit 1 ; }
 
@@ -67,7 +64,7 @@ COMMENT
 # Prepare FASTA files
 #--------------------------
 
-echo "...reformatting raw transcriptome FASTA file @"
+echo Reformatting sample "$sample" input file @
 
 # Make a note in the spec file about which original FASTA file was used
 cat >> "$sample"_specfile <<COMMENT
@@ -90,14 +87,12 @@ COMMENT
 ## PRE-EXONERATE BLAST ##
 #########################
 
-echo "Running BLASTX in preparation for Exonerate at $(date) @"
+echo Analysing sample "$sample" with BLASTx ahead of Exonerate at $(date) @
 
 # Identify best protein BLAST hits for each transcript
 	# INPUT: "$sample"_trinityinput.fa
 	# OUTPUT: "$sample"_FSblastx.out
-diamond blastx --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
-#####diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
-echo "...BLASTX complete at $(date) @"	
+diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
 
 # Make a note in the spec file about which BLAST parameters were used
 cat >> "$sample"_specfile <<COMMENT
@@ -110,7 +105,7 @@ COMMENT
 ## EXONERATE ##
 ###############
 
-echo "Correcting frameshifts with Exonerate at $(date) @"
+echo Correcting frameshifts in sample "$sample" with Exonerate at $(date) @
 
 # Correct any frameshifts in each transcript
 	# INPUT: "$sample"_FSblastx.out and "$sample"_trinityinput.fa
@@ -135,7 +130,7 @@ COMMENT
 ## TRANSDECODER ##
 ##################
 
-echo "Identifying ORFs with TransDecoder at $(date) @"
+echo Identifying ORFs for sample $sample with TransDecoder at $(date) @
 
 # Make sure I am back in the right place
 cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
@@ -151,8 +146,7 @@ TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
 cd "$sample"_TrinityFS.fa.transdecoder_dir || { echo "could not move to TransDecoder directory - exiting! @"; exit 1 ; }
 # Run BLAST search
 echo "...performing BLASTx for TransDecoder @"
-diamond blastp --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
-#####diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
+diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
 # Run HMMSCAN
 echo "...performing hmmscan for TransDecoder @"
 hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep
@@ -213,8 +207,7 @@ mkdir "$wkdir"/"$sample"/redundancy
 cd "$wkdir"/"$sample"/redundancy || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
 
 # Run BLAST search
-#####diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
-diamond blastp --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
+diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
 
 # Perform redundancy filtration
 $scriptlib/BLASTRedFilt.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
