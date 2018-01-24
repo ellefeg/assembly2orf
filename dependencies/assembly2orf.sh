@@ -272,3 +272,4 @@ ANALYSIS OF $sample COMPLETE
 COMMENT
 
 cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
+
