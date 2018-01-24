@@ -6,7 +6,7 @@ set -e
 # Version:	v01.01
 # Goal:		To convert a .fa transcriptome assembly to a filtered set of transcript ORFs
 # Usage:	nohup ./Run_TransPipeline.sh {sample} {trinity.fa} {working dir} > nohup.out 2>&1&
-# Output:	"$sample"_ORFs.fa which can be used for clustering methods downstream #####CHANGE THIS#####
+# Output:	Redundancy-filtered ORFs which can be used for clustering methods downstream
 # ------------------------------------------------------------------
 # VERSION INFORMATION
 # v01.00 28 July 2017
@@ -75,7 +75,7 @@ COMMENT
 	# INPUT: "$trinity"
 	# OUTPUT: "$sample"_trinityinput.fa
 $scriptlib/fasta_header.sh "$sample" "$trinity" y
-mv "$sample"_clean.fa "$sample"_trinityinput.fa #####change to pipeline input?
+mv "$sample"_clean.fa "$sample"_trinityinput.fa
 
 # Make a note in the spec file about how the original FASTA file was modified
 cat >> "$sample"_specfile <<COMMENT
@@ -137,7 +137,7 @@ cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting!
 
 # To identify candidate ORFs for each transcript
 	# INPUT: "$sample"_TrinityFS.fa #frameshift corrected file produced by Exonerate
-	# OUTPUT: "$sample"_ORFs.fa ##### make this more clear - is this what it will be at the end? is this aa or nt? cds/mrna? change so all the versions are analysed in the same way for later
+	# OUTPUT: "$sample"_TrinityFS.fa.transdecoder.[bed/cds/gff3/mRNA/pep]
 	
 # Identify preliminary ORFs (>300aa)
 TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
@@ -172,7 +172,7 @@ done
 	# OUTPUT: "$sample"_ORFs.fa #over-writes old version
 for filetype in cds pep mRNA
 	do
-	# Reformat results to look pretty #/##### come back to this
+	# Reformat results to look pretty
 	$scriptlib/fasta_header.sh "$sample" "$sample"_TrinityFS.fa.transdecoder."$filetype" n
 	rm "$sample"_TrinityFS.fa.transdecoder."$filetype"
 	mv "$sample"_clean.fa "$sample"_TrinityFS.fa.transdecoder."$filetype"
