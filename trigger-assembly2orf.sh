@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # ------------------------------------------------------------------
 # Author:	Laura Grice
 # Title:	trigger-assembly2orf.sh
