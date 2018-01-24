@@ -11,9 +11,9 @@ A transcriptome preparation pipeline which converts assembled transcriptomes (fo
 nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
 
 # Location of longest representative metazoan sequence database:
-/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Asel25pc+Metazoa_longest/metazoan_longreps.dmnd 
+/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Metazoa/longest_reps/metazoan_longreps.dmnd
 # Location of longest representative metazoan sequence file:
-/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Asel25pc+Metazoa_longest/metazoan_longreps.fa
+/home/laura/data/inhouse_data/BLAST_DB/blastpDB_Metazoa/longest_reps/metazoan_longreps.fa
 ```
 
 ----
