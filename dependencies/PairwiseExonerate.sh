@@ -149,3 +149,4 @@ for i in "$nucleo".tab "$amino".tab "$blastOut".tab "$blasttab"_nt "$blasttab"_n
 done
 
 echo -e "Frameshift correction analysis complete at $(date).\nWhere are the output files?\n\t> Working directory: $(pwd)\n\t> Final whole-transcriptome file: "$sample"_TrinityFS.fa \n\t> Final corrected sequences only: "$sample"_FScorrectedonly.fa (in temp dir)\n\t> Corrected cigar output: "$sample"_FScorrected.cigar (in temp dir)\n\t> Temporary file directory: "$sample"_tempfiles"
+
