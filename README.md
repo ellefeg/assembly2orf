@@ -16,8 +16,8 @@ For those working in-house:
 * sample_input = DIY
 * working directory = DIY
 * dependencies folder = /home/laura/scripts/assembly2orf/dependencies
-* blastDB (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
-* blastAA (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
+* blastDB (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
+* blastAA (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
 
 *How were these BLAST files generated?*
 1. Download Ensembl Metazoa data (release 36, June 8th 2017), concatenate files together, perform all-vs-all BLAST, run Silix and flag each sequence with its gene family ID (by Tristan, see file /ngs/db/ensembl_metazoa/pep/cmd)
