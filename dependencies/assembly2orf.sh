@@ -210,7 +210,7 @@ cd "$wkdir"/"$sample"/redundancy || { echo "could not return to sample directory
 diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
 
 # Perform redundancy filtration
-$scriptlib/BLASTRedFilt.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
+$scriptlib/filter_homologues.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
 mv "$sample"_representatives.fa "$sample"_representatives.pep.fa
 
 # Extract the same representatives from .cds and .mrna files
