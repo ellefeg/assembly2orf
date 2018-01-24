@@ -263,10 +263,7 @@ mkdir "$sample"_exonerate/output_files
 mv "$sample"_TrinityFS.fa "$sample"_exonerate/output_files
 mkdir "$sample"_input
 mv "$sample"_trinityinput.fa "$sample"_input
-
 echo "...output directory organised"
-echo ...output file of ORFs are "$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.[cds/mRNA/pep] @
-cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
 
 # Make a note in the spec file about the final output
 cat >> "$sample"_specfile <<COMMENT
@@ -280,3 +277,5 @@ ANALYSIS OF $sample COMPLETE
 	Redundancy filtration folder: $(echo $sample)_redundancy
 	Redundancy filtration output: $(echo $sample)_representatives.[cds/mRNA/pep].fa
 COMMENT
+
+cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
