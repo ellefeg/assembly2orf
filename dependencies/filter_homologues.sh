@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # ------------------------------------------------------------------
 # Author: Laura Grice
 # Date: 25.07.17
@@ -59,3 +60,4 @@ echo "Tidying up!"
 rm "$sample"_fasta.tab "$sample"_seqofinterest.tab "$sample"_seqofinterest.list "$sample"_notblast.list "$sample"_allblast.list "$sample"_blastrep.list "$sample"_blastrep.tab
 
 echo "Done!"
+
