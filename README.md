@@ -8,7 +8,7 @@ A transcriptome preparation pipeline which converts assembled transcriptomes (fo
 
 # Quick start
 ```
-nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > TransPipeline_nohup.out 2>&1&
+nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
 
 # Location of longest representative metazoan sequence database:
 /home/laura/data/inhouse_data/BLAST_DB/blastpDB_Asel25pc+Metazoa_longest/metazoan_longreps.dmnd 
@@ -107,7 +107,7 @@ Run the program with the following command:
 ```
 ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa}
 # or to nohup and send output to a custom-named file
-nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > TransPipeline_nohup.out 2>&1&
+nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
 ```
 Where
 * ./trigger-assembly2orf.sh - the full/relative filestring of the script
