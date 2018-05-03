@@ -191,6 +191,8 @@ You will most likely be interested in the contents of either:
 * I have linked in the script to my old Pfam-A from Deglab - because I couldn't get it to work here
 . I think this is because I missed the hmmpress step which is required to convert a .hmm into a fil
 e that can actually run. hmmpress will make .h3m, .h3i, .h3f, .h3p files - i think (but i need to check) that these need to be in the same file as the .hmm but you trigger hmmscan with .hmm
+* (3 May 2018) the script uses hmmscan on the old version of Pfam - i tried running hmmscan for something else using this file and it fails. I will need to update the script (~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) I think i worked out what the problem was when i was working with Panther HMMs. Find this bit in my notes/blog and see what the fix was.
+* The ono redundancy filtering bit is "over-grouping" different opsin paralogues and filteirng them out - i will need to re-thibk this strategy.
 
 # Version history
 v00.01 - 28 July 2017
