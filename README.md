@@ -1,6 +1,6 @@
 NOTE TO SELF TO DO IN THIS EDIT:
-1. add in this pfam:
-~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
+xxx1. add in this pfam:
+xxx~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
 
 2. Remove the ono filtering step from the main script
 
@@ -101,7 +101,7 @@ which {program}
 
 Check that you have access to the required Pfam-A file
 ```
-head -n 3 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm
+head -n 3 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
 # if you get an error message you must:
 ## find the file or download your own version from ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/
 ## check with hmmscan to make sure the file works as expected
@@ -214,4 +214,7 @@ v01.00 - 16-24 January 2018
 * Updated for new Asellus server and to make the program into more of a "bundle" that can be run by anyone
 * Updated text based on new pipeline implementation
 v01.01 - 24 September 2018
-* Remove the "Ono filtering step" so the final output is the transdecoder output.
+* Changed link to Pfam-A file required for hmmscan. The current version is compatible with the February 2015 version of HMMER (3.1b2) which is currently on Asellus.
+
+
+* TO DO: Remove the "Ono filtering step" so the final output is the transdecoder output.
