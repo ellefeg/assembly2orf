@@ -10,6 +10,8 @@ NOTE TO SELF TO DO IN THIS EDIT:
 
 5. add a test dataset.
 
+6. do we still want to use the ensembl metazoa blast database/sequence database? check when we use them/
+
 # assembly2orf
 
 *Laura Grice - Updated 24 September 2018*
