@@ -149,7 +149,7 @@ echo "...performing BLASTx for TransDecoder @"
 diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
 # Run HMMSCAN
 echo "...performing hmmscan for TransDecoder @"
-hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep
+hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm longest_orfs.pep
 cd .. || exit
 # Perform final ORF prediction
 echo "...performing final ORF prediction for TransDecoder @"
@@ -190,8 +190,8 @@ STEP 3: TRANSDECODER
 	Tool: $(diamond --version)
 	BLASTp Command: diamond blastp --sensitive --db $blastDB --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out $(echo $sample)_blastp.out
 	Tool: $(hmmscan -h | head -n 2 | tail -n 1)
-	PFAM-A Database: $(head -n 1 /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm) at /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm
-	HMMSCAN Command: hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout $(echo $sample)_domtblout /home/laura/data/external_data/Pfam/Pfam-A_oldComp.hmm longest_orfs.pep
+	PFAM-A Database: $(head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) at /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
+	HMMSCAN Command: hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout $(echo $sample)_domtblout /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm longest_orfs.pep
 COMMENT
 
 #######################
