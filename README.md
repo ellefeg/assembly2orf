@@ -6,6 +6,10 @@ NOTE TO SELF TO DO IN THIS EDIT:
 
 3. don't need the redundancy script now.
 
+4. add email as a sixth parameter for input_params
+
+5. add a test dataset.
+
 # assembly2orf
 
 *Laura Grice - Updated 24 September 2018*
