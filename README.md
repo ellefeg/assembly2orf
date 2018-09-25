@@ -106,7 +106,7 @@ Create a tab-delimited file which provides information about all the nucleotide 
 
 If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
 
-**Input 2: output directory**
+**Input 2: Output directory**
 
 Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run `assembly2orf`. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
 
