@@ -196,51 +196,6 @@ STEP 3: TRANSDECODER
 	HMMSCAN Command: hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout $(echo $sample)_domtblout /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm longest_orfs.pep
 COMMENT
 
-#######################
-## FILTER REDUNDANCY ##
-#######################
-
-echo -e filtering sequence redundancy with BLASTp at $(date) @
-## NB: This approach is based on that from Ono et al. BMC Genomics (2015) 16:1031
-
-# Make sure I am back in the right place
-cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
-mkdir "$wkdir"/"$sample"/redundancy
-cd "$wkdir"/"$sample"/redundancy || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
-
-# Run BLAST search
-diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
-
-# Perform redundancy filtration
-$scriptlib/filter_homologues.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
-mv "$sample"_representatives.fa "$sample"_representatives.pep.fa
-
-# Extract the same representatives from .cds and .mrna files
-grep ">" "$sample"_representatives.pep.fa | sed 's/>//g' | sort > "$sample"_representatives.list
-fasta_formatter -t -i "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.cds | sort -k1,1 > ./"$sample"_allsequences.cds.tab
-fasta_formatter -t -i "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.mRNA | sort -k1,1 > ./"$sample"_allsequences.mRNA.tab
-# make a table of sequences of interest
-join "$sample"_representatives.list "$sample"_allsequences.cds.tab | sed 's/ /\t/g' | awk '{print $1, $NF}' | sed 's/ /\t/g' > "$sample"_seqofinterest.cds.tab
-join "$sample"_representatives.list "$sample"_allsequences.mRNA.tab | sed 's/ /\t/g' | awk '{print $1, $NF}' | sed 's/ /\t/g' > "$sample"_seqofinterest.mRNA.tab
-# convert to fasta 
-sed 's/^/>/g' "$sample"_seqofinterest.mRNA.tab | sed 's/\t/\n/g' > "$sample"_representatives.mRNA.fa
-sed 's/^/>/g' "$sample"_seqofinterest.cds.tab | sed 's/\t/\n/g' > "$sample"_representatives.cds.fa
-
-# Tidy up
-for i in "$sample"_representatives.list "$sample"_allsequences.cds.tab "$sample"_allsequences.mRNA.tab "$sample"_seqofinterest.cds.tab "$sample"_seqofinterest.mRNA.tab
-	do
-	rm $i
-done
-
-# Make a note in the spec file about the redundancy filtration step
-cat >> "$wkdir"/"$sample"/"$sample"_specfile <<COMMENT
-STEP 4: REDUNDANCY FILTRATION
-	Tool: $(diamond --version)
-	BLASTp Command: diamond blastp --sensitive --db $blastDB --query $(echo $wkdir)/$(echo $sample)/$(echo $sample)_transDecoder/output_files/$(echo $sample)_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out $(echo $sample)_TrinityFS.fa.transdecoder.pep_blastp.out
-	Tool: $(fastaremove | head -n 1)
-	Tool: $(fasta_formatter -h | head -n 2 | tail -n 1)
-COMMENT
-
 ################
 ## TIDYING UP ##
 ################
@@ -250,7 +205,6 @@ cd "$wkdir"/"$sample" || { echo "could not return to sample directory - exiting!
 
 echo "Organising final output directory"
 
-mv redundancy "$sample"_redundancy
 mkdir "$sample"_exonerate_tempfiles/interim_files
 mv $(find ./"$sample"_exonerate_tempfiles -maxdepth 1 -type f) "$sample"_exonerate_tempfiles/interim_files
 mv "$sample"_exonerate_tempfiles "$sample"_exonerate
@@ -269,8 +223,6 @@ ANALYSIS OF $sample COMPLETE
 	Frameshift output file: $(echo $sample)_TrinityFS.fa
 	ORF prediction folder: $(echo $sample)_transDecoder/output_files
 	ORF prediction files: $(echo $sample)_TrinityFS.fa.transdecoder.[bed/cds/gff3/mRNA/pep]
-	Redundancy filtration folder: $(echo $sample)_redundancy
-	Redundancy filtration output: $(echo $sample)_representatives.[cds/mRNA/pep].fa
 COMMENT
 
 cd "$wkdir" || { echo "could not return to working directory - exiting! @"; exit 1 ; }
