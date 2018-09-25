@@ -165,6 +165,7 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
 
 **EXONERATE**
 * Generates a set of nucleotide files containing [sequences that didn't have frameshifts] + [sequences that had frameshifts but were corrected]. Note that the frameshift-corrected sequences will only be as long as the region of the reference protein to which they were aligned, but the non-frameshift-corrected sequences will remain full-length. This step also removes any sequences that are 100% identical to one another.
+* The idea to incorporate frameshift correction into the ORF finding pipeline is inspired by the work of internship student Maury Damien (2014) in collaboration with LBBE (Laurent DURET) and LEHNA (Tristan LEFÉBURE). In this earlier work, the frameshift correction was implemented using the software Geneshift and the use of an ACNUC database.
 
 **TRANSDECODER**
 * Runs TransDecoder to identify candidate ORFs (with homology information - hmmer and blast - used to retain sequences not meeting TransDecoders filtering steps. 
