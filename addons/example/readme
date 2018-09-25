@@ -2,6 +2,9 @@ We can test assembly2orf by running this example file of 62 nucleotide sequences
 
 1. Ensure the program is properly set up following the instructions in README.md
 
+2. If necessary, edit column 2 of `sample_input` to the correct nucleotide file locations
+
+
 2. Find these files:
 * x
 * y
