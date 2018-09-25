@@ -14,84 +14,43 @@ xxxx4. add email as a sixth parameter for input_paramsxxxx
 
 6. do we still want to use the ensembl metazoa blast database/sequence database? check when we use them/
 
+INSERT SOMEWHERE:
+
+For those working on the 
+
+
+
+
+
 # assembly2orf
 
 *Laura Grice - Updated 24 September 2018*
 
-A transcriptome preparation pipeline which converts assembled transcriptomes (for example, Trinity output) into frameshift-corrected, redundancy-filtered ORFs.
+A transcriptome preparation pipeline which converts any number of assembled transcriptomes (for example, Trinity output) into sets of frameshift-corrected ORFs. The package is run when the user calls a single script, **trigger-assembly2orf.sh** (and provides a number of parameters).
 
 ----
 
 # Quick start
-```
-nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {blast.dmnd} {blast.fa} {email} > assembly2orf_nohup.out 2>&1&
-```
 
-For those working in-house:
-* script to run = /home/laura/scripts/assembly2orf/trigger-assembly2orf.sh
-* sample_input = DIY
-* working directory = DIY
-* blastDB (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
-* blastAA (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
-* email = DIY
-
-*How were these BLAST files generated?*
-1. Download Ensembl Metazoa data (release 36, June 8th 2017), concatenate files together, perform all-vs-all BLAST, run Silix and flag each sequence with its gene family ID (by Tristan, see file /ngs/db/ensembl_metazoa/pep/cmd)
-2. Within each species, pull out the longest representative of each gene family
-3. Build a blast DB 
+This command assumes you have a list of samples (`sample_input`), a reference fasta file (`reference.fa`) and a Diamond blast database created from this file (`reference.dmnd`) - see below for more information about these files. You must also provide a path to your desired output directory and an email address.
+```
+trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd reference.fa {email address}
+```
 
 ----
 
-# Introduction
-**assembly2orf** is a package which will convert any number of **nucleotide.fa** files (e.g. Trinity output) into sets of filtered, frameshift-corrected best ORFs. The package includes several files/folders (pictured below) but the user need only interact with **trigger-assembly2orf.sh**. 
+# Installation and pre-requisites
 
-<pre>
-assembly2orf/
-├── README.md
-├── trigger-assembly2orf.sh
-└── dependences
-     ├──── assembly2orf.sh
-     ├──── fasta_header.sh
-     ├──── filter_homologues.sh
-     └──── PairwiseExonerate.sh
-</pre>
+## Installation
 
-The user will create a sample description file (referred to here as **sample_input**, but it can be named anything and saved anywhere) which provides a brief name and file location for each fasta file of interest to be analysed. To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
+1. Download the **assembly2orf** package from Github and unzip, or find the package on the server (`/home/laura/scripts/assembly2orf`). 
 
-# What is included
-* README.md - this readme file
-* trigger-assembly2orf.sh - the script which the user will call to run the package
-* dependencies/assembly2orf.sh - the script which does most of the heavy lifting to analyse each sample in turn
-* dependencies/fasta_header.sh - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
-* dependencies/filter_homologues.sh - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
-* dependencies/PairwiseExonerate.sh - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
-
-# Software dependencies
-
-The following publicly-available programs must be in your path:
-* TransDecoder.LongOrfs, TransDecoder.Predict (part of the Transdecoder package)
-* fasta_formatter (part of FASTX Toolkit)
-* exonerate, fastaremove (part of Exonerate package)
-* diamond
-* hmmscan (part of the HMMER package)
-* cd-hit-est (part of the CD-HIT package) #/##### edit throughout to insert refs to this where required. added to pairwise exonerate.
-
-To check if you have access to these programs, the following command should print the location of the program (if you do not get any output, the program is not installed)
-```
-which {program_name}
-# if it prints a file string, the program is installed
-# if you get no response, the program is not installed
-```
-
-# Getting started
-
-If required, download the **assembly2orf** package from Github and unzip. Alternatively, find this package on the server. Regardless, confirm that line 38 of **trigger-assembly2orf.sh** lists the correct **/dependencies** filepath. If not, edit it (it may be best to make your own copy first):
+2. Confirm that line 38 of **trigger-assembly2orf.sh** lists the correct location of the **assembly2orf/dependencies** folder. If not, edit **trigger-assembly2orf.sh** accordingly (optional: make a copy first).
 ```
 vi trigger-assembly2orf.sh +38
 ```
 
-Make sure all scripts are executable by running the command below while in **assembly2orf** directory. Fix any unexecutable scripts using the `chmod` command.
-
+3. Ensure that all the required scripts are executable by running the following command (you must be in the **assembly2orf** directory). Fix any unexecutable scripts using the `chmod` command.
 ```
 for i in trigger-assembly2orf.sh dependencies/assembly2orf.sh dependencies/fasta_header.sh dependencies/PairwiseExonerate.sh
 do
@@ -99,39 +58,89 @@ echo "$i" $(test -x "$i" && echo executable || echo "not executable")
 done
 ```
 
-Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond, hmmscan and cd-hit-est are in your path (see "Software dependencies" above).
+## Third-party software
+**assembly2orf** requires that a number of publicly-available programs are in your path:
+* TransDecoder.LongOrfs, TransDecoder.Predict (part of the Transdecoder package)
+* fasta_formatter (part of FASTX Toolkit)
+* exonerate, fastaremove (part of Exonerate package)
+* diamond
+* hmmscan (part of the HMMER package)
+* cd-hit-est (part of the CD-HIT package) #/##### edit throughout to insert refs to this where required. added to pairwise exonerate.
+
+Run the following command to identify missing programs. If required, install them and/or add them to your path.
 ```
-which {program}
+for i in TransDecoder.LongOrfs TransDecoder.Predict fasta_formatter exonerate fastaremove diamond hmmscan cd-hit-est
+do
+command -v "$i" || echo >&2 "assembly2orf requires "$i" but it's not in your path"
+done
 ```
 
-Check that you have access to the required Pfam-A file
+## Pfam-A file
+Run the following command to ensure that **assembly2orf** can access the necessary Pfam-A file (The expected output is: `HMMER3/f [3.1b2 | February 2015]`).
 ```
-head -n 3 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
-# if you get an error message you must:
-## find the file or download your own version from ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/
-## check with hmmscan to make sure the file works as expected
-## edit the following lines of dependencies/assembly2orf.sh with the new filestring
+head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
+```
+
+If you get an error message or want to use a different Pfam-A file, you must find it or [download one from Pfam](ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/). Do a test with hmmscan to make sure that the new file works as expected. Then edit the following lines of **./dependencies/assembly2orf.sh** to the new filepath to the Pfam-A.hmm file.
+```
 vi assembly2orf.sh +152
 vi assembly2orf.sh +193
 vi assembly2orf.sh +194
 ```
 
-Create or choose a working directory to hold your output files. It can have any name and be located anywhere you like (**assembly2orf** will generate separate sample-specific sub-directories inside this working directory as it runs). Make a note of the entire file string of your working directory as you will require this information to call **trigger-assembly2orf.sh** 
+## User input
 
-Create or choose a custom diamond blast database (.dmnd) and the exact amino acid fasta file which was used to create this database. The same files will be used at several points in the analysis:
+For each run of **assembly2orf**, the user must provide several files.
+
+**Input 1: `sample_input` file**
+
+Create a tab-delimited file which provides information about all your files to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
+* Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
+* Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
+
+**Input 2: output directory**
+
+Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run assembly2orf. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
+
+**Input 3: Reference Diamond blast database**
+**Input 4: Reference fasta file**
+
+**assembly2orf** uses a reference set of amino acid sequences:
 * as a source of reference sequences for frameshift correction
 * as a source of homology information for ORF prediction
-* to filter redundant sequences
-Make a note of the entire file string of both files as you will require this information to call **trigger-assembly2orf.sh** 
+
+This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa, using the following methods (as descripted in `/ngs/db/ensembl_metazoa/pep/cmd`):
+
+1. Download all `*.pep.all.fa.gz` files [from Ensembl Metazoa](ftp://ftp.ensemblgenomes.org/pub/release-36/metazoa/fasta/). We used Release 36 from June 8th 2018.
+
+2. Concatenate all files together
+
+3. Perform all-vs-all BLAST
+
+4. Run Silix and flag each sequence with its gene family ID
+
+5. Within each species, pull out the longest representative of each gene family. **Make a note of this filestring for the fourth input parameter!**
+
+6. Make a Diamond BLAST database. **Make a note of this filestring for the third input parameter!** The file will be called something like `someaminoacidfile.dmnd`
 ```
-# to make a custom diamond blast database
 diamond makedb --in someaminoacidfile.fa --db someaminoacidfile
 ```
 
-Create a tab-delimited file (for example, called **sample_input**) which provides information about all your files to analyse. It is helpful to save this file in your working directory, but it can be anywhere and have any name.
-* Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
-* Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
-Make a note of the entire file string of **sample_input** as you will require this information to call **trigger-assembly2orf.sh** 
+If you want to use these inhouse datasets they are found:
+* blastDB = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
+* blastAA = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
+
+**Input 5: Email**
+
+A single email will be sent to this address when assembly2orf is complete
+
+
+
+
+
+
+
+
 
 Run the program with the following command:
 ```
@@ -148,8 +157,26 @@ Where
 * email address - you will recieve a single email from the server when the whole assembly2orf analysis is complete
 
 # Software overview
-trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
+To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
 
+<pre>
+assembly2orf/
+├── README.md
+├── trigger-assembly2orf.sh
+└── dependences
+     ├──── assembly2orf.sh
+     ├──── fasta_header.sh
+     ├──── filter_homologues.sh
+     └──── PairwiseExonerate.sh
+</pre>
+trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
+# What is included
+* README.md - this readme file
+* trigger-assembly2orf.sh - the script which the user will call to run the package
+* dependencies/assembly2orf.sh - the script which does most of the heavy lifting to analyse each sample in turn
+* dependencies/fasta_header.sh - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
+* dependencies/filter_homologues.sh - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
+* dependencies/PairwiseExonerate.sh - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
 
 **INITIALISATION**
 * **PREPARE VARIABLES** defines a number of variables based on user-specified input
@@ -212,8 +239,12 @@ You will most likely be interested in the contents of either:
 xxxx* I have linked in the script to my old Pfam-A from Deglab - because I couldn't get it to work here. I think this is because I missed the hmmpress step which is required to convert a .hmm into a file that can actually run. hmmpress will make .h3m, .h3i, .h3f, .h3p files - i think (but i need to check) that these need to be in the same file as the .hmm but you trigger hmmscan with .hmmxxxx
 xxxx* (3 May 2018) the script uses hmmscan on the old version of Pfam - i tried running hmmscan for something else using this file and it fails. I will need to update the script (~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) I think i worked out what the problem was when i was working with Panther HMMs. Find this bit in my notes/blog and see what the fix was.xxxx
 * The ono redundancy filtering bit is "over-grouping" different opsin paralogues and filteirng them out - i will need to re-thibk this strategy.
+* TO DO: Remove the "Ono filtering step" so the final output is the transdecoder output.
+
+# Test
 
 # Version history
+
 v00.01 - 28 July 2017
 v00.02 - 13 August 2017
 * Original incorrect $blastDB and $blastFA files (erroneously containing a mix of nucleotide and amino acid sequences) were replaced with correct (amino acid only) sequences. No change to the script, just to the files specified in lines 28-29 of Run_TransPipeline.sh.
@@ -225,5 +256,6 @@ v01.01 - 24 September 2018
 * Removed requirement to manually specify location of dependencies directory each time the script is run
 * User receives an email when the run is finished
 
+# Authors and acknowledgements
 
-* TO DO: Remove the "Ono filtering step" so the final output is the transdecoder output.
+assembly2orf was built by **Laura Grice** in 2017-2018. This pipeline was developed in collaboration with Tristan Lefébure. The work of internship student Maury Damien - who was supervised by Laurent Duret (LBBE) and Tristan Lefébure (LEHNA) in 2014 - was particularly important for the development of this tool.
