@@ -167,7 +167,7 @@ assembly2orf/
      └──── PairwiseExonerate.sh
 </pre>
 
-To start the analysis, the user calls `trigger-assembly2orf.sh` and provides a number of input parameters to the program. `trigger-assembly2orf.sh` is a simple script whose role is to read `sample_input` line-by-line and feed this information as input into `assembly2orf.sh`. The roles of the files included in this package are described below:  
+To start the analysis, the user calls `trigger-assembly2orf.sh` and provides a number of input parameters to the program. `trigger-assembly2orf.sh` is a simple script whose role is to read `sample_input` line-by-line and feed this information as input into `assembly2orf.sh` (which in turn calls other scripts). The roles of the files included in this package are described below:  
 
 * `README.md` - this readme file
 * `trigger-assembly2orf.sh` - the script which the user will call to run the package
