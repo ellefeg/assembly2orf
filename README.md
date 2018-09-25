@@ -47,7 +47,7 @@ trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd referen
 
 # Installation and pre-requisites
 
-## Installation
+## (a) Installation
 
 1. Download the **assembly2orf** package from Github and unzip, or find the package on the server (`/home/laura/scripts/assembly2orf`). 
 
@@ -64,7 +64,7 @@ echo "$i" $(test -x "$i" && echo executable || echo "not executable")
 done
 ```
 
-## Third-party software
+## (b) Third-party software
 **assembly2orf** requires that a number of publicly-available programs are in your path:
 * TransDecoder.LongOrfs, TransDecoder.Predict (part of the Transdecoder package)
 * fasta_formatter (part of FASTX Toolkit)
@@ -81,7 +81,7 @@ command -v "$i" || echo >&2 "assembly2orf requires "$i" but it's not in your pat
 done
 ```
 
-## Pfam-A file
+## (c) Pfam-A file
 Run the following command to ensure that **assembly2orf** can access the necessary Pfam-A file (The expected output is: `HMMER3/f [3.1b2 | February 2015]`).
 ```
 head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
@@ -94,17 +94,18 @@ vi assembly2orf.sh +193
 vi assembly2orf.sh +194
 ```
 
-## User input
+## (d) User input
 
 For each run of **assembly2orf**, the user must provide several files.
 
 **Input 1: `sample_input` file**
 
-Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
+...Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
+
 * Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
 * Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
 
-If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
+...If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
 
 **Input 2: output directory**
 
