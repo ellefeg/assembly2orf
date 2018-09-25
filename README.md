@@ -32,7 +32,13 @@ A transcriptome preparation pipeline which converts any number of assembled tran
 
 # Quick start
 
-This command assumes you have a list of samples (`sample_input`), a reference fasta file (`reference.fa`) and a Diamond blast database created from this file (`reference.dmnd`) - see below for more information about these files. You must also provide a path to your desired output directory and an email address.
+Run the following command with these parameters:
+* `sample_input` - a tab-delimited file where col 1 = sampleID and col 2 = /path/to/transcriptome.fa (nucleotides)
+* `path/to/output/dir` - full filepath to an output directory (which must already exist)
+* `reference.dmnd` - a Diamond blast database made from `reference.fa`
+* `reference.fa` - reference file of amino acid sequences (e.g. all sequences on Ensembl Metazoa)
+* `email`
+
 ```
 trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd reference.fa {email address}
 ```
@@ -94,22 +100,20 @@ For each run of **assembly2orf**, the user must provide several files.
 
 **Input 1: `sample_input` file**
 
-Create a tab-delimited file which provides information about all your files to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
+Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
 * Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
 * Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
 
+If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
+
 **Input 2: output directory**
 
-Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run assembly2orf. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
+Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run **assembly2orf**. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
 
 **Input 3: Reference Diamond blast database**
 **Input 4: Reference fasta file**
 
-**assembly2orf** uses a reference set of amino acid sequences:
-* as a source of reference sequences for frameshift correction
-* as a source of homology information for ORF prediction
-
-This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa, using the following methods (as descripted in `/ngs/db/ensembl_metazoa/pep/cmd`):
+**assembly2orf** uses a reference set of amino acid sequences as a source of reference sequences for frameshift correction and as a source of homology information for ORF prediction. This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa which has been processed as follows (see also `/ngs/db/ensembl_metazoa/pep/cmd`):
 
 1. Download all `*.pep.all.fa.gz` files [from Ensembl Metazoa](ftp://ftp.ensemblgenomes.org/pub/release-36/metazoa/fasta/). We used Release 36 from June 8th 2018.
 
@@ -134,27 +138,11 @@ If you want to use these inhouse datasets they are found:
 
 A single email will be sent to this address when assembly2orf is complete
 
+# Running the program
 
+trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd reference.fa {email address}
 
-
-
-
-
-
-
-Run the program with the following command:
-```
-./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa}
-# or to nohup and send output to a custom-named file
-nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {blast.dmnd} {blast.fa} {email address} > assembly2orf_nohup.out 2>&1&
-```
-Where
-* ./trigger-assembly2orf.sh - the full/relative filestring of the script
-* sample_input - the full/relative filestring of your sample_input file
-* working directory - the full filestring of your working directory
-* blast.dmnd - your custom blast database
-* blast.fa - the amino acid file used to build the custom blast database
-* email address - you will recieve a single email from the server when the whole assembly2orf analysis is complete
+----
 
 # Software overview
 To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
