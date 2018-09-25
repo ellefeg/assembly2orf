@@ -105,6 +105,8 @@ COMMENT
 ## EXONERATE ##
 ###############
 
+# The idea to incorporate frameshift correction into the ORF finding pipeline is inspired by the work of internship student Maury Damien (2014) in collaboration with LBBE (Laurent DURET) and LEHNA (Tristan LEFÉBURE)
+
 echo Correcting frameshifts in sample "$sample" with Exonerate at $(date) @
 
 # Correct any frameshifts in each transcript
