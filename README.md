@@ -87,7 +87,7 @@ Run the following command to ensure that `assembly2orf` can access the necessary
 head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
 ```
 
-If you get an error message or want to use a different Pfam-A file, you must find it or [download one from Pfam](ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/). Do a test with hmmscan to make sure that the new file works as expected. Then edit the following lines of `./dependencies/assembly2orf.sh` to the new filepath to the Pfam-A.hmm file.
+If you get an error message or want to use a different Pfam-A file, you must find it or download one from Pfam (ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/). Do a test with hmmscan to make sure that the new file works as expected. Then edit the following lines of `./dependencies/assembly2orf.sh` to the new filepath to the Pfam-A.hmm file.
 ```
 vi assembly2orf.sh +152
 vi assembly2orf.sh +193
@@ -116,7 +116,7 @@ Create or choose a directory to hold your output files. It can have any name and
 
 `assembly2orf` uses a reference set of amino acid sequences as a source of reference sequences for frameshift correction and as a source of homology information for ORF prediction. This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa which has been processed as follows (see also `/ngs/db/ensembl_metazoa/pep/cmd`):
 
-1. Download all `*.pep.all.fa.gz` files [from Ensembl Metazoa](ftp://ftp.ensemblgenomes.org/pub/release-36/metazoa/fasta/). We used Release 36 from June 8th 2018.
+1. Download all `*.pep.all.fa.gz` files from Ensembl Metazoa (ftp://ftp.ensemblgenomes.org/pub/release-36/metazoa/fasta/). We used Release 36 from June 8th 2018.
 2. Concatenate all files together
 3. Perform all-vs-all BLAST
 4. Run Silix and flag each sequence with its gene family ID
