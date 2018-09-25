@@ -30,7 +30,7 @@ A transcriptome preparation pipeline which converts any number of assembled tran
 
 ----
 
-# Quick start
+## Quick start
 
 Run the following command with these parameters:
 * `sample_input` - a tab-delimited file where col 1 = sampleID and col 2 = /path/to/transcriptome.fa (nucleotides)
@@ -45,9 +45,9 @@ trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd referen
 
 ----
 
-# Installation and pre-requisites
+## Installation and pre-requisites
 
-## (a) Installation
+### (a) Installation
 
 1. Download the **assembly2orf** package from Github and unzip, or find the package on the server (`/home/laura/scripts/assembly2orf`). 
 
@@ -64,7 +64,7 @@ echo "$i" $(test -x "$i" && echo executable || echo "not executable")
 done
 ```
 
-## (b) Third-party software
+### (b) Third-party software
 **assembly2orf** requires that a number of publicly-available programs are in your path:
 * TransDecoder.LongOrfs, TransDecoder.Predict (part of the Transdecoder package)
 * fasta_formatter (part of FASTX Toolkit)
@@ -81,7 +81,7 @@ command -v "$i" || echo >&2 "assembly2orf requires "$i" but it's not in your pat
 done
 ```
 
-## (c) Pfam-A file
+### (c) Pfam-A file
 Run the following command to ensure that **assembly2orf** can access the necessary Pfam-A file (The expected output is: `HMMER3/f [3.1b2 | February 2015]`).
 ```
 head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
@@ -94,13 +94,13 @@ vi assembly2orf.sh +193
 vi assembly2orf.sh +194
 ```
 
-## (d) User input
+### (d) User input
 
 For each run of **assembly2orf**, the user must provide several files.
 
 **Input 1: `sample_input` file**
 
-Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
+Create a tab-delimited file which provides information about all the nucleotide transcriptome files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
 * Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
 * Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
 
@@ -111,6 +111,7 @@ If you have a sufficiently large server, you may want to split `sample_output` i
 Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run **assembly2orf**. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
 
 **Input 3: Reference Diamond blast database**
+
 **Input 4: Reference fasta file**
 
 **assembly2orf** uses a reference set of amino acid sequences as a source of reference sequences for frameshift correction and as a source of homology information for ORF prediction. This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa which has been processed as follows (see also `/ngs/db/ensembl_metazoa/pep/cmd`):
@@ -134,13 +135,29 @@ If you want to use these inhouse datasets they are found:
 
 A single email will be sent to this address when assembly2orf is complete
 
-# Running the program
+## Testing 
 
+**assembly2orf** is run the following way. 
+
+```
 trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd reference.fa {email address}
+```
+
+This package includes test files (`assembly2orf/addons/example`). If you are running this on Asellus with **assembly2orf** saved in `/home/laura/scripts/assembly2orf`, you shouldn't need to make any changes. Otherwise, you'll need to edit column 2 of `sample_input` to link to the correct nucleotide files.
+
+If you are on Asellus in the directory `/home/laura/scripts/assembly2orf/addons/example`, simply run:
+
+```
+/home/laura/scripts/assembly2orf/trigger-assembly2orf.sh sample_input /home/laura/scripts/assembly2orf/addons/example /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa {email}
+```
 
 ----
 
-# Software overview
+## Software overview
+
+
+
+
 To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
 
 <pre>
@@ -154,7 +171,7 @@ assembly2orf/
      └──── PairwiseExonerate.sh
 </pre>
 trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
-# What is included
+## What is included
 * README.md - this readme file
 * trigger-assembly2orf.sh - the script which the user will call to run the package
 * dependencies/assembly2orf.sh - the script which does most of the heavy lifting to analyse each sample in turn
@@ -218,16 +235,16 @@ You will most likely be interested in the contents of either:
 * {sample}_transDecoder/output_files/ - the full set of ORFs
 * {sample}_redundancy - these ORFs after homology-based redundancy filtration
 
-# To do
+## To do
 * The nohup file generated by this program is annoying to parse. I have it set so you can skip all the Exonerate lines if you do "grep -v "\^" {nohupfile} " but it is still hard because of the blast and hmmer hits that are written to file (and are not easily parse-out-able). It'd be good to work out how to split these logs up into something more readable (different files for each step? append some kind of code in the log so you can remove everything between the two lines of text?
 xxxx* I have linked in the script to my old Pfam-A from Deglab - because I couldn't get it to work here. I think this is because I missed the hmmpress step which is required to convert a .hmm into a file that can actually run. hmmpress will make .h3m, .h3i, .h3f, .h3p files - i think (but i need to check) that these need to be in the same file as the .hmm but you trigger hmmscan with .hmmxxxx
 xxxx* (3 May 2018) the script uses hmmscan on the old version of Pfam - i tried running hmmscan for something else using this file and it fails. I will need to update the script (~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) I think i worked out what the problem was when i was working with Panther HMMs. Find this bit in my notes/blog and see what the fix was.xxxx
 * The ono redundancy filtering bit is "over-grouping" different opsin paralogues and filteirng them out - i will need to re-thibk this strategy.
 * TO DO: Remove the "Ono filtering step" so the final output is the transdecoder output.
 
-# Test
+## Test
 
-# Version history
+## Version history
 
 v00.01 - 28 July 2017
 v00.02 - 13 August 2017
@@ -240,6 +257,6 @@ v01.01 - 24 September 2018
 * Removed requirement to manually specify location of dependencies directory each time the script is run
 * User receives an email when the run is finished
 
-# Authors and acknowledgements
+## Authors and acknowledgements
 
 assembly2orf was built by **Laura Grice** in 2017-2018. This pipeline was developed in collaboration with Tristan Lefébure. The work of internship student Maury Damien - who was supervised by Laurent Duret (LBBE) and Tristan Lefébure (LEHNA) in 2014 - was particularly important for the development of this tool.
