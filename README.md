@@ -100,12 +100,11 @@ For each run of **assembly2orf**, the user must provide several files.
 
 **Input 1: `sample_input` file**
 
-...Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
-
+Create a tab-delimited file which provides information about all the files that you want to analyse. It is helpful down the track if you have saved this file in your output directory (**Input 2**) but it can be anywhere and have any name. Provide the full filepath when you call **trigger-assembly2orf.sh**
 * Column 1 = sample name = abbreviated name of each sample, such as a species code (e.g. AAD3, PCG6, etc.)
 * Column 2 = transcriptome = full file string of each nucleotide.fa file (e.g. /path/to/file.fa)
 
-...If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
+If you have a sufficiently large server, you may want to split `sample_output` into several smaller files and run them concurrently. It is OK to use the same output directory for each run, as long as there are no double-ups in the sample names provided. Inversely, it is fine to split up similar samples and run them in different runs or on different days - each sample is processed separately.
 
 **Input 2: output directory**
 
@@ -117,16 +116,12 @@ Create or choose a directory to hold your output files. It can have any name and
 **assembly2orf** uses a reference set of amino acid sequences as a source of reference sequences for frameshift correction and as a source of homology information for ORF prediction. This reference set can be anything you like, but if you are working on a non-model animal species, you may like to use sequences from a wide range of animal species. For instance, we use a bulk download of sequences from Ensembl Metazoa which has been processed as follows (see also `/ngs/db/ensembl_metazoa/pep/cmd`):
 
 1. Download all `*.pep.all.fa.gz` files [from Ensembl Metazoa](ftp://ftp.ensemblgenomes.org/pub/release-36/metazoa/fasta/). We used Release 36 from June 8th 2018.
-
 2. Concatenate all files together
-
 3. Perform all-vs-all BLAST
-
 4. Run Silix and flag each sequence with its gene family ID
-
 5. Within each species, pull out the longest representative of each gene family. **Make a note of this filestring for the fourth input parameter!**
-
 6. Make a Diamond BLAST database. **Make a note of this filestring for the third input parameter!** The file will be called something like `someaminoacidfile.dmnd`
+
 ```
 diamond makedb --in someaminoacidfile.fa --db someaminoacidfile
 ```
