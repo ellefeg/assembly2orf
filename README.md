@@ -26,7 +26,7 @@ For those working on the
 
 *Laura Grice - Updated 24 September 2018*
 
-A transcriptome preparation pipeline which converts any number of assembled transcriptomes (for example, Trinity output) into sets of frameshift-corrected ORFs. The package is run when the user calls a single script, **trigger-assembly2orf.sh** (and provides a number of parameters).
+A transcriptome preparation pipeline which converts any number of assembled transcriptomes (for example, Trinity output) into sets of frameshift-corrected ORFs. Although the package contains a number of scripts, the user only needs to interact with one, **trigger-assembly2orf.sh**.
 
 ----
 
