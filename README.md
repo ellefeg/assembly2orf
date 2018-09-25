@@ -41,6 +41,8 @@ Run the following command with these parameters:
 trigger-assembly2orf.sh sample_input {path/to/output/dir} reference.dmnd reference.fa {email address}
 ```
 
+You can find some exemplar fasta files in `assembly2orf/addons/example` to get you started.
+
 ----
 
 ## Installation and pre-requisites
