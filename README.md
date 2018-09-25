@@ -1,12 +1,14 @@
 NOTE TO SELF TO DO IN THIS EDIT:
-xxx1. add in this pfam:
-xxx~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
+
+xxxx1. add in this pfam:xxxx
+
+xxx~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmmxxxx
 
 2. Remove the ono filtering step from the main script
 
-3. don't need the redundancy script now.
+3. don't need the redundancy script now. move to addons dir (and make it stand-alone)
 
-4. add email as a sixth parameter for input_params
+xxxx4. add email as a sixth parameter for input_paramsxxxx
 
 5. add a test dataset.
 
@@ -22,16 +24,16 @@ A transcriptome preparation pipeline which converts assembled transcriptomes (fo
 
 # Quick start
 ```
-nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
+nohup ./trigger-assembly2orf.sh {sample_input file} {working directory} {blast.dmnd} {blast.fa} {email} > assembly2orf_nohup.out 2>&1&
 ```
 
 For those working in-house:
 * script to run = /home/laura/scripts/assembly2orf/trigger-assembly2orf.sh
 * sample_input = DIY
 * working directory = DIY
-* dependencies folder = /home/laura/scripts/assembly2orf/dependencies
 * blastDB (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
 * blastAA (maybe) = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
+* email = DIY
 
 *How were these BLAST files generated?*
 1. Download Ensembl Metazoa data (release 36, June 8th 2017), concatenate files together, perform all-vs-all BLAST, run Silix and flag each sequence with its gene family ID (by Tristan, see file /ngs/db/ensembl_metazoa/pep/cmd)
@@ -83,15 +85,18 @@ which {program_name}
 
 # Getting started
 
-If required, download the **assembly2orf** package from Github. Unzip. Alternatively, find this package on the server. Make a note of the entire file string of the enclosed **/dependencies** directory as you will require this information to call **trigger-assembly2orf.sh** 
-
-Make sure all scripts are executable
+If required, download the **assembly2orf** package from Github and unzip. Alternatively, find this package on the server. Regardless, confirm that line 38 of **trigger-assembly2orf.sh** lists the correct **/dependencies** filepath. If not, edit it (it may be best to make your own copy first):
 ```
-chmod 777 trigger_assembly2orf.sh
-chmod 777 dependencies/assembly2orf.sh
-chmod 777 dependencies/fasta_header.sh
-chmod 777 dependencies/filter_homologues.sh
-chmod 777 dependencies/PairwiseExonerate.sh
+vi trigger-assembly2orf.sh +38
+```
+
+Make sure all scripts are executable by running the command below while in **assembly2orf** directory. Fix any unexecutable scripts using the `chmod` command.
+
+```
+for i in trigger-assembly2orf.sh dependencies/assembly2orf.sh dependencies/fasta_header.sh dependencies/PairwiseExonerate.sh
+do
+echo "$i" $(test -x "$i" && echo executable || echo "not executable")
+done
 ```
 
 Check that the programs TransDecoder.LongOrfs, TransDecoder.Predict, fasta_formatter, exonerate, fastaremove, diamond, hmmscan and cd-hit-est are in your path (see "Software dependencies" above).
@@ -132,15 +137,15 @@ Run the program with the following command:
 ```
 ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa}
 # or to nohup and send output to a custom-named file
-nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
+nohup ./trigger-assembly2orf.sh {sample_input} {working directory} {blast.dmnd} {blast.fa} {email address} > assembly2orf_nohup.out 2>&1&
 ```
 Where
 * ./trigger-assembly2orf.sh - the full/relative filestring of the script
 * sample_input - the full/relative filestring of your sample_input file
 * working directory - the full filestring of your working directory
-* dependencies folder - the full filestring of the folder containing assembly2orf.sh, fasta_header.sh, filter_homologues.sh and PairwiseExonerate.sh
 * blast.dmnd - your custom blast database
 * blast.fa - the amino acid file used to build the custom blast database
+* email address - you will recieve a single email from the server when the whole assembly2orf analysis is complete
 
 # Software overview
 trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
@@ -172,6 +177,7 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
 * Moves all the files to a temp directory
 
 **The final output**
+* You will receive an email when assembly2orf is finished analysing all samples
 * At the end your working directory will contain one directory per sample. In each sample directory you will see the following files:
 <pre>
 {sample}
@@ -202,8 +208,8 @@ You will most likely be interested in the contents of either:
 
 # To do
 * The nohup file generated by this program is annoying to parse. I have it set so you can skip all the Exonerate lines if you do "grep -v "\^" {nohupfile} " but it is still hard because of the blast and hmmer hits that are written to file (and are not easily parse-out-able). It'd be good to work out how to split these logs up into something more readable (different files for each step? append some kind of code in the log so you can remove everything between the two lines of text?
-* I have linked in the script to my old Pfam-A from Deglab - because I couldn't get it to work here. I think this is because I missed the hmmpress step which is required to convert a .hmm into a file that can actually run. hmmpress will make .h3m, .h3i, .h3f, .h3p files - i think (but i need to check) that these need to be in the same file as the .hmm but you trigger hmmscan with .hmm
-* (3 May 2018) the script uses hmmscan on the old version of Pfam - i tried running hmmscan for something else using this file and it fails. I will need to update the script (~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) I think i worked out what the problem was when i was working with Panther HMMs. Find this bit in my notes/blog and see what the fix was.
+xxxx* I have linked in the script to my old Pfam-A from Deglab - because I couldn't get it to work here. I think this is because I missed the hmmpress step which is required to convert a .hmm into a file that can actually run. hmmpress will make .h3m, .h3i, .h3f, .h3p files - i think (but i need to check) that these need to be in the same file as the .hmm but you trigger hmmscan with .hmmxxxx
+xxxx* (3 May 2018) the script uses hmmscan on the old version of Pfam - i tried running hmmscan for something else using this file and it fails. I will need to update the script (~/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) I think i worked out what the problem was when i was working with Panther HMMs. Find this bit in my notes/blog and see what the fix was.xxxx
 * The ono redundancy filtering bit is "over-grouping" different opsin paralogues and filteirng them out - i will need to re-thibk this strategy.
 
 # Version history
@@ -215,6 +221,8 @@ v01.00 - 16-24 January 2018
 * Updated text based on new pipeline implementation
 v01.01 - 24 September 2018
 * Changed link to Pfam-A file required for hmmscan. The current version is compatible with the February 2015 version of HMMER (3.1b2) which is currently on Asellus.
+* Removed requirement to manually specify location of dependencies directory each time the script is run
+* User receives an email when the run is finished
 
 
 * TO DO: Remove the "Ono filtering step" so the final output is the transdecoder output.
