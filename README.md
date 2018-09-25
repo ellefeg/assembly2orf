@@ -12,11 +12,9 @@ xxxx4. add email as a sixth parameter for input_paramsxxxx
 
 5. add a test dataset.
 
-6. do we still want to use the ensembl metazoa blast database/sequence database? check when we use them/
+xxxx6. do we still want to use the ensembl metazoa blast database/sequence database? check when we use them/xxxx
 
-INSERT SOMEWHERE:
-
-For those working on the 
+7. fix the trees showing file hierarchies
 
 
 
@@ -155,11 +153,7 @@ If you are on Asellus in the directory `/home/laura/scripts/assembly2orf/addons/
 
 ## Software overview
 
-
-
-
-To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** reads **sample_input** line-by-line and uses a secondary script called **assembly2orf.sh** (and several other custom scripts provided with this package) to analyse each sample. To know more, see the **Software Overview** section below.
-
+The following diagram describes the file hierarchy of the **assembly2orf** package:
 <pre>
 assembly2orf/
 ├── README.md
@@ -170,14 +164,19 @@ assembly2orf/
      ├──── filter_homologues.sh
      └──── PairwiseExonerate.sh
 </pre>
-trigger-assembly2orf.sh will loop through each sample of interest specified in **sample_input**. **trigger-assembly2orf.sh** will call **assembly2orf.sh** for Sample A, then again for Sample B, etc.
-## What is included
-* README.md - this readme file
-* trigger-assembly2orf.sh - the script which the user will call to run the package
-* dependencies/assembly2orf.sh - the script which does most of the heavy lifting to analyse each sample in turn
-* dependencies/fasta_header.sh - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
-* dependencies/filter_homologues.sh - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
-* dependencies/PairwiseExonerate.sh - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
+
+To start the analysis, the user calls **trigger-assembly2orf.sh** and provides a number of input parameters to the program. **trigger-assembly2orf.sh** is a simple script whose role is to read **sample_input** line-by-line and feed this information as input into **assembly2orf.sh**. The roles of the files included in this package are described below:  
+
+* `README.md` - this readme file
+* `trigger-assembly2orf.sh` - the script which the user will call to run the package
+* `dependencies/assembly2orf.sh` - the script which does most of the heavy lifting to analyse each sample in turn
+* `dependencies/fasta_header.sh` - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
+* `dependencies/filter_homologues.sh` - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
+* `dependencies/PairwiseExonerate.sh` - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
+
+## assembly2orf, step by step
+
+This section describes the different steps in the assembly2orf pipeline in detail.
 
 **INITIALISATION**
 * **PREPARE VARIABLES** defines a number of variables based on user-specified input
@@ -198,10 +197,6 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
 **TRANSDECODER**
 * Runs TransDecoder to identify candidate ORFs (with homology information - hmmer and blast - used to retain sequences not meeting TransDecoders filtering steps. 
 
-**FILTER REDUNDANCY**
-* All ORFs are compared to a BLAST database with BLASTp. All ORFs within a sample which match the same sequence subject are considered to be homologues of one another, and therefore redundant. The sequence producing the best BLAST match (assessed by highest BIT score) to the subject is retained as the representative sequence and the others are discarded
-* Any sequences lacking BLAST hits to the database are retained in the dataset
-
 **TIDYING UP**
 * Moves all the files to a temp directory
 
@@ -216,11 +211,6 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
 │       └────── {sample}_TrinityFS.fa
 ├── {sample}_input
 │   └──── {sample}_trinityinput.fa
-├── {sample}_redundancy
-│   ├──── {sample}_TrinityFS.fa.transdecoder.pep_blastp.out
-│   ├──── {sample}_representatives.cds.fa
-│   ├──── {sample}_representatives.mRNA.fa
-│   └──── {sample}_representatives.pep.fa
 ├── {sample}_specfile
 └── {sample}_transDecoder
     ├──── interim_files
@@ -231,9 +221,7 @@ trigger-assembly2orf.sh will loop through each sample of interest specified in *
         ├────── {sample}_TrinityFS.fa.transdecoder.mRNA
         └────── {sample}_TrinityFS.fa.transdecoder.pep
 </pre>
-You will most likely be interested in the contents of either:
-* {sample}_transDecoder/output_files/ - the full set of ORFs
-* {sample}_redundancy - these ORFs after homology-based redundancy filtration
+You will most likely be interested in the contents of *{sample}_transDecoder/output_files/*, the full set of ORFs.
 
 ## To do
 * The nohup file generated by this program is annoying to parse. I have it set so you can skip all the Exonerate lines if you do "grep -v "\^" {nohupfile} " but it is still hard because of the blast and hmmer hits that are written to file (and are not easily parse-out-able). It'd be good to work out how to split these logs up into something more readable (different files for each step? append some kind of code in the log so you can remove everything between the two lines of text?
