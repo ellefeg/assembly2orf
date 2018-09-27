@@ -212,6 +212,7 @@ mkdir "$sample"_exonerate/output_files
 mv "$sample"_TrinityFS.fa "$sample"_exonerate/output_files
 mkdir "$sample"_input
 mv "$sample"_trinityinput.fa "$sample"_input
+
 echo "...output directory organised"
 
 # Make a note in the spec file about the final output
