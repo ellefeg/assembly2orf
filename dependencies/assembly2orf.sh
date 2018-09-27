@@ -221,7 +221,7 @@ mv "$sample"_TrinityFS.fa "$sample"_exonerate/output_files
 	#Input data folder: $(echo $sample)_input
 	#Input data file: $(echo $sample)_trinityinput.fa
 # and comment this out
-rm "$sample"_trinityinput.fa
+rm "$sample"_trinityinput.fa "$sample"_exonerate/interim_files/"$sample"_trinityinput.fa.tab
 
 echo "...output directory organised"
 
