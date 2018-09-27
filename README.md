@@ -32,7 +32,7 @@ A transcriptome preparation pipeline which converts any number of assembled tran
 
 Run the following command with these parameters:
 * `sample_input` - a tab-delimited file where col 1 = sampleID and col 2 = /path/to/transcriptome.fa (nucleotides)
-* `path/to/output/dir` - full filepath to an output directory (which must already exist)
+* `path/to/output/dir` - full filepath to an output directory (which must already exist; relative paths like ./ don't work)
 * `reference.dmnd` - a Diamond blast database made from `reference.fa`
 * `reference.fa` - reference file of amino acid sequences (e.g. all sequences on Ensembl Metazoa)
 * `email`
@@ -112,7 +112,7 @@ If you have a sufficiently large server, you may want to split `sample_output` i
 
 **Input 2: Output directory**
 
-Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath and the directory must already exist before you run `assembly2orf`. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
+Create or choose a directory to hold your output files. It can have any name and be located anywhere you like, but you must provide the full filepath (not just a relative path like ./) and the directory must already exist before you run `assembly2orf`. The program will generate separate sample-specific sub-directories inside this working directory as it runs.
 
 **Input 3: Reference Diamond blast database**
 
