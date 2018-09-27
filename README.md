@@ -51,7 +51,11 @@ You can find some exemplar fasta files in `assembly2orf/addons/example` to get y
 
 1. Download the `assembly2orf` package from Github and unzip, or find the package on the server (`/home/laura/scripts/assembly2orf`). 
 
-2. Confirm that line 38 of `trigger-assembly2orf.sh` lists the correct location of the `assembly2orf/dependencies` folder. If not, edit `trigger-assembly2orf.sh` accordingly (optional: make a copy first).
+2. Confirm that line 38 of `trigger-assembly2orf.sh` lists the correct location of the `assembly2orf/dependencies` folder.
+```
+sed -n 38p trigger-assembly2orf.sh
+```
+If not, edit `trigger-assembly2orf.sh` accordingly (optional: make a copy first).
 ```
 vi trigger-assembly2orf.sh +38
 ```
