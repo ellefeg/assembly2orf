@@ -210,16 +210,24 @@ mv $(find ./"$sample"_exonerate_tempfiles -maxdepth 1 -type f) "$sample"_exonera
 mv "$sample"_exonerate_tempfiles "$sample"_exonerate
 mkdir "$sample"_exonerate/output_files
 mv "$sample"_TrinityFS.fa "$sample"_exonerate/output_files
-mkdir "$sample"_input
-mv "$sample"_trinityinput.fa "$sample"_input
+
+##############################
+# Deleting some large things #
+##############################
+# If you don't want to delete things, uncomment this:
+	#mkdir "$sample"_input
+	#mv "$sample"_trinityinput.fa "$sample"_input
+#Add these lines back into the specfile note below:
+	#Input data folder: $(echo $sample)_input
+	#Input data file: $(echo $sample)_trinityinput.fa
+# and comment this out
+rm "$sample"_trinityinput.fa
 
 echo "...output directory organised"
 
 # Make a note in the spec file about the final output
 cat >> "$sample"_specfile <<COMMENT
 ANALYSIS OF $sample COMPLETE
-	Input data folder: $(echo $sample)_input
-	Input data file: $(echo $sample)_trinityinput.fa
 	Frameshift correction folder: $(echo $sample)_exonerate/output_files
 	Frameshift output file: $(echo $sample)_TrinityFS.fa
 	ORF prediction folder: $(echo $sample)_transDecoder/output_files
