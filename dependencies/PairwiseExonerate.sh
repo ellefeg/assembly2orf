@@ -145,7 +145,9 @@ mv "$sample"_exonerateCigarFS.out "$sample"_FScorrected.cigar
 
 rm "$blastOut".tab
 
-for i in "$nucleo".tab "$amino".tab "$blasttab"_nt "$blasttab"_nt+aa "$sample"_pairedSeqTab "$sample"_exonerateTemp.out "$sample"_exonerateCigar.out "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab "$sample"_exonerateFastaAllTested.out uncorrectedgenes.fa "$sample"_TrinityFS_redundant.fa "$sample"_FScorrected.cigar "$sample"_FScorrectedonly.fa "$sample"_TrinityFS.fa.clstr
+rm "$amino".tab
+
+for i in "$nucleo".tab "$blasttab"_nt "$blasttab"_nt+aa "$sample"_pairedSeqTab "$sample"_exonerateTemp.out "$sample"_exonerateCigar.out "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab "$sample"_exonerateFastaAllTested.out uncorrectedgenes.fa "$sample"_TrinityFS_redundant.fa "$sample"_FScorrected.cigar "$sample"_FScorrectedonly.fa "$sample"_TrinityFS.fa.clstr
 	do
 	mv $i "$sample"_tempfiles
 done
