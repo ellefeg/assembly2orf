@@ -92,13 +92,13 @@ echo Analysing sample "$sample" with BLASTx ahead of Exonerate at $(date) @
 # Identify best protein BLAST hits for each transcript
 	# INPUT: "$sample"_trinityinput.fa
 	# OUTPUT: "$sample"_FSblastx.out
-diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_FSblastx.out
+diamond blastx --sensitive --db "$blastDB" --query "$sample"_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > "$sample"_FSblastx.out
 
 # Make a note in the spec file about which BLAST parameters were used
 cat >> "$sample"_specfile <<COMMENT
 STEP 2A: PRE-EXONERATE BLASTx
 	Tool: $(diamond --version)
-	Command: diamond blastx --sensitive --db $blastDB --query $(echo $sample)_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out $(echo $sample)_FSblastx.out
+	Command: diamond blastx --sensitive --db $blastDB --query $(echo $sample)_trinityinput.fa --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > $(echo $sample)_FSblastx.out
 COMMENT
 
 ###############
@@ -148,7 +148,7 @@ TransDecoder.LongOrfs -t "$sample"_TrinityFS.fa
 cd "$sample"_TrinityFS.fa.transdecoder_dir || { echo "could not move to TransDecoder directory - exiting! @"; exit 1 ; }
 # Run BLAST search
 echo "...performing BLASTx for TransDecoder @"
-diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_blastp.out
+diamond blastp --sensitive --db "$blastDB" --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > "$sample"_blastp.out
 # Run HMMSCAN
 echo "...performing hmmscan for TransDecoder @"
 hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout "$sample"_domtblout /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm longest_orfs.pep
@@ -190,7 +190,7 @@ cat >> "$sample"_specfile <<COMMENT
 STEP 3: TRANSDECODER
 	Tool: TransDecoder (run with default parameters and homology evidence)
 	Tool: $(diamond --version)
-	BLASTp Command: diamond blastp --sensitive --db $blastDB --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out $(echo $sample)_blastp.out
+	BLASTp Command: diamond blastp --sensitive --db $blastDB --query longest_orfs.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > $(echo $sample)_blastp.out
 	Tool: $(hmmscan -h | head -n 2 | tail -n 1)
 	PFAM-A Database: $(head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm) at /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
 	HMMSCAN Command: hmmscan --cpu 2 --domE 0.00001 -E 0.00001 --domtblout $(echo $sample)_domtblout /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm longest_orfs.pep
