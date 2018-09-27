@@ -52,7 +52,7 @@ mkdir "$wkdir"/"$sample"/redundancy
 cd "$wkdir"/"$sample"/redundancy || { echo "could not return to sample directory - exiting! @"; exit 1 ; }
 
 # Run BLAST search
-diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
+diamond blastp --sensitive --db "$blastDB" --query "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out
 
 # Perform redundancy filtration
 $scriptlib/filter_homologues.sh "$sample" "$sample"_TrinityFS.fa.transdecoder.pep_blastp.out "$wkdir"/"$sample"/"$sample"_transDecoder/output_files/"$sample"_TrinityFS.fa.transdecoder.pep
@@ -79,7 +79,7 @@ done
 cat >> "$wkdir"/"$sample"/"$sample"_specfile <<COMMENT
 STEP 4: REDUNDANCY FILTRATION
 	Tool: $(diamond --version)
-	BLASTp Command: diamond blastp --sensitive --db $blastDB --query $(echo $wkdir)/$(echo $sample)/$(echo $sample)_transDecoder/output_files/$(echo $sample)_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 1 --out $(echo $sample)_TrinityFS.fa.transdecoder.pep_blastp.out
+	BLASTp Command: diamond blastp --sensitive --db $blastDB --query $(echo $wkdir)/$(echo $sample)/$(echo $sample)_transDecoder/output_files/$(echo $sample)_TrinityFS.fa.transdecoder.pep --outfmt 6 --evalue 1e-5 --max-target-seqs 100 | sort -u -k1,1 > $(echo $sample)_TrinityFS.fa.transdecoder.pep_blastp.out
 	Tool: $(fastaremove | head -n 1)
 	Tool: $(fasta_formatter -h | head -n 2 | tail -n 1)
 COMMENT
