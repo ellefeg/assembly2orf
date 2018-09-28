@@ -13,7 +13,7 @@
 # ------------------------------------------------------------------
 # Check if correct number of arguments (n = 5) provided
 if [ $# != 2 ]; then
-    echo "...ERROR: 2 arguments expected for TriggerPipeline - exiting!"
+    echo "...ERROR: 2 arguments expected for Silix - exiting!"
     exit 1
 fi
 
