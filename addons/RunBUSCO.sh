@@ -12,26 +12,25 @@
 # Check and prepare arguments
 # ------------------------------------------------------------------
 
-# Check if correct number of arguments (n = 2) provided
-if [ $# != 2 ]; then
-    echo "...ERROR: 2 arguments expected for TriggerPipeline - exiting!"
+# Check if correct number of arguments (n = 1) provided
+if [ $# != 1 ]; then
+    echo "...ERROR: 1 argument expected for BUSCO - exiting!"
     exit 1
 fi
 
 # Rename variables
 cds=$1
-outpath=$2
 busco_dir=/opt/src/busco/scripts
 
 # ------------------------------------------------------------------
 # Run BUSCO
 # ------------------------------------------------------------------
 
-python3 $busco_dir/run_BUSCO.py -i "$cds" -o "$outpath"/$(basename --suffix=.cds.fa "$cds").busco -c 10 -l /ngs/db/busco/arthropoda_odb9 -m tran
+python3 $busco_dir/run_BUSCO.py -i "$cds" -o $(basename --suffix=.cds.fa "$cds").busco -c 10 -l /ngs/db/busco/arthropoda_odb9 -m tran
 
 # ------------------------------------------------------------------
 # Tidy up
 # ------------------------------------------------------------------
 
-mv tmp $(basename --suffix=.cds.fa "$cds")_buscotemp
-
+# delete temp file if empty, otherwise move to directory
+[ "$(ls -A tmp)" ] && mv tmp run*busco || rm -r tmp
