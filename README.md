@@ -93,9 +93,9 @@ head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
 
 If you get an error message or want to use a different Pfam-A file, you must find it or download one from Pfam (ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/). Do a test with hmmscan to make sure that the new file works as expected. Then edit the following lines of `./dependencies/assembly2orf.sh` to the new filepath to the Pfam-A.hmm file.
 ```
-vi assembly2orf.sh +152
-vi assembly2orf.sh +193
-vi assembly2orf.sh +194
+vi assembly2orf.sh +154
+vi assembly2orf.sh +195 #two things to change on this line
+vi assembly2orf.sh +196
 ```
 
 ### (d) User input
