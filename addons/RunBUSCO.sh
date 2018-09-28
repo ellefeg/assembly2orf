@@ -4,7 +4,7 @@
 # Date: 27 September 2018
 # Title: RunBUSCO.sh
 # Goal: To use a CDS file to test for transcriptome completeness with BUSCO
-# Usage: RunBUSCO.sh {cds.fa} {outdir}
+# Usage: RunBUSCO.sh {cds.fa}
 # NOTE: If the file is called e.g. file.cds.fa the output will be called file.busco (and a temp dir called file_buscotemp. If the file is called file.fa, the output will be file.fa.busco etc.
 # ------------------------------------------------------------------
 
