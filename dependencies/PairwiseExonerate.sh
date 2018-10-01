@@ -45,17 +45,18 @@ sample=$1	#sample short name
 blastOut=$2	#blast hits
 nucleo=$3	#nucleotide query fasta
 amino=$4	#blastDb fasta
+aminoName=$(basename "$amino")
 
 # Convert $nucleo and $amino fasta files to tabular format and simplify fasta header names
 ## NB: The first tab removal step will not change anything in most cases - it is simply to prevent any problems with printing the right columns in case the fasta file is weirdly formatted
 ## NB: The awk $NF is used to select the LAST column, and is used instead of sed $3 in case sequences lack headers
 sed 's/\t/ /g' "$nucleo" | fasta_formatter -t | sort -k1,1 | sed 's/ /\t/' | awk '{print $1, $NF}' > "$nucleo".tab
-sed 's/\t/ /g' "$amino" | fasta_formatter -t | sort -k1,1 | sed 's/ /\t/' | awk '{print $1, $NF}' > "$amino".tab
+sed 's/\t/ /g' "$amino" | fasta_formatter -t | sort -k1,1 | sed 's/ /\t/' | awk '{print $1, $NF}' > "$aminoName".tab
 # Convert $blastOut to sorted table showing query-hit pairs
 cut -f1-2 "$blastOut" | sort -k1,1 > "$blastOut".tab
 #Assign nicer variable names
 nucleotab="$nucleo".tab		#the tabular nt file we just made
-aminotab="$amino".tab		#the tabular aa file we just made
+aminotab="$aminoName".tab		#the tabular aa file we just made
 blasttab="$blastOut".tab	#the tabular blast query-hit file we just made
 
 # Merge $blasttab and $nucleotab
@@ -135,16 +136,20 @@ echo -e "Exonerate runs complete at $(date). Run statistics:\n\t>Number of start
 echo -e "Tidying up!\n"
 
 # Make a directory to store temporary files
+echo -e "Making a temp directory!\n"
 mkdir "$sample"_tempfiles
 
 #Move temporary files to new directory
 
 #rename output
+echo -e "Renaming files!\n"
 mv "$sample"_exonerateFasta_FScorrected.fa "$sample"_FScorrectedonly.fa
 mv "$sample"_exonerateCigarFS.out "$sample"_FScorrected.cigar
 
-rm "$amino".tab
+echo -e "Removing reference database tab file!\n"
+rm "$aminotab"
 
+echo -e "Removing unnecessary files!\n"
 for i in "$nucleo".tab "$blastOut".tab "$blasttab"_nt "$blasttab"_nt+aa "$sample"_pairedSeqTab "$sample"_exonerateTemp.out "$sample"_exonerateCigar.out "$sample"_FScorrectedgenes.list "$sample"_exonerateFastaAll.tab "$sample"_exonerateFastaAllTested.out uncorrectedgenes.fa "$sample"_TrinityFS_redundant.fa "$sample"_FScorrected.cigar "$sample"_FScorrectedonly.fa "$sample"_TrinityFS.fa.clstr
 	do
 	mv $i "$sample"_tempfiles
