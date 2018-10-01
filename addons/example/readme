@@ -11,27 +11,12 @@ example/
 
 `earth.fa`, `wind.fa` and `fire.fa` are nucleotide files which represent raw sequence output from Trinity. `sample_input` is a file telling assembly2orf which sequences to analyse.
 
-To run the example, follow the `installation and pre-requisites` section in `assembly2orf/README.md`. Briefly:
-* Download the package, install any third-party software required, make all scripts executable
+If you are on Asellus in the directory /home/laura/scripts/assembly2orf/addons/example, simply run:
+
+/home/laura/scripts/assembly2orf/trigger-assembly2orf.sh sample_input /home/laura/scripts/assembly2orf/addons/example /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa {email}
+
+If you are not on Asellus, follow the installation instructions in `assembly2orf/README.md`. Briefly:
+* Download the package, install any third-party software required, make all scripts executable, check you have access to the Pfam-A file
 * Check that `trigger-assembly2orf.sh` lists the correct `dependencies` folder
-* 
 
-
-
-
-5 to 6 minutes
-
-1. Ensure the program is properly set up following the instructions in README.md
-
-2. If necessary, edit column 2 of `sample_input` to the correct nucleotide file locations
-
-
-2. Find these files:
-* x
-* y
-* z
-
-3. Run the program
-```
-./trigger-assembly2orf.sh {sample_input file} {working directory} {dependencies folder} {blast.dmnd} {blast.fa} > assembly2orf_nohup.out 2>&1&
-```
+This example will take approximately 5 to 6 minutes to run.
