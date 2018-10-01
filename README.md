@@ -162,16 +162,27 @@ If you are on Asellus in the directory `/home/laura/scripts/assembly2orf/addons/
 The following diagram describes the file hierarchy of the `assembly2orf` package:
 <pre>
 assembly2orf/
+├── addons
+│   ├── example
+│   │   ├── earth.fa
+│   │   ├── fire.fa
+│   │   ├── readme
+│   │   ├── sample_input
+│   │   └── wind.fa
+│   ├── getOrthos_1-1.sh
+│   ├── getOrthos_nonzero.sh
+│   ├── readme
+│   ├── RunBUSCO.sh
+│   └── RunSilix.sh
+├── dependencies
+│   ├── assembly2orf.sh
+│   ├── fasta_header.sh
+│   └── PairwiseExonerate.sh
 ├── README.md
-├── trigger-assembly2orf.sh
-└── dependences
-     ├──── assembly2orf.sh
-     ├──── fasta_header.sh
-     ├──── filter_homologues.sh
-     └──── PairwiseExonerate.sh
+└── trigger-assembly2orf.sh
 </pre>
 
-To start the analysis, the user calls `trigger-assembly2orf.sh` and provides a number of input parameters to the program. `trigger-assembly2orf.sh` is a simple script whose role is to read `sample_input` line-by-line and feed this information as input into `assembly2orf.sh` (which in turn calls other scripts). The roles of the files included in this package are described below:  
+To start the analysis, the user calls `trigger-assembly2orf.sh` and provides a number of input parameters (`sample input`) to the program. `trigger-assembly2orf.sh` is a simple script whose role is to read `sample_input` line-by-line and feed this information as input into `assembly2orf.sh` (which in turn calls other scripts in `dependencies`). The roles of the files included in this package are described below:  
 
 * `README.md` - this readme file
 * `trigger-assembly2orf.sh` - the script which the user will call to run the package
@@ -179,6 +190,11 @@ To start the analysis, the user calls `trigger-assembly2orf.sh` and provides a n
 * `dependencies/fasta_header.sh` - a script which reformats fasta files (i.e. shortens fasta headers and removes line breaks within sequences) to make them easier to parse by the program
 * `dependencies/filter_homologues.sh` - a script which uses BLAST to remove redundant sequences, based on BLAST hits to a common reference sequence
 * `dependencies/PairwiseExonerate.sh` - a script which pairs sequences with their best reference and attempts to remove any frameshift errors within the sequence of interest
+* `addons` - contains extra files and scripts which are not required to run assembly2orf but which may be useful:
+** `example` - contains three example fasta files and a `sample_input` file to run a test of `assembly2orf`
+** `RunSilix.sh` - after assembly2orf is run, you can use Silix to group these (or other) samples into gene families, using third-party software Silix.
+** `getOrthos_1-1.sh` and `getOrthos_nonzero.sh` - Takes tab-file output from Silix and outputs 1:1:1....:1 or n:n:m.....:n orthologue gene families. This functionality is performed automatically by `RunSilix.sh`
+** `RunBusco.sh` - takes transdecoder output and determines transcriptome "completeness" based on presence/absence of known single-copy arthropod orthologues, using third-party software Busco.
 
 ## assembly2orf, step by step
 
@@ -207,22 +223,54 @@ This section describes the different steps in the assembly2orf pipeline in detai
 * You will receive an email when assembly2orf is finished analysing all samples
 * At the end your working directory will contain one directory per sample. In each sample directory you will see the following files:
 <pre>
-{sample}
+{sample}/
 ├── {sample}_exonerate
-│   ├──── interim_files
-│   └──── output_files
-│       └────── {sample}_TrinityFS.fa
-├── {sample}_input
-│   └──── {sample}_trinityinput.fa
+│   ├── interim_files
+│   │   ├── {sample}_exonerateCigar.out
+│   │   ├── {sample}_exonerateFastaAll.tab
+│   │   ├── {sample}_exonerateFastaAllTested.out
+│   │   ├── {sample}_exonerateTemp.out
+│   │   ├── {sample}_FSblastx.out
+│   │   ├── {sample}_FSblastx.out.tab
+│   │   ├── {sample}_FSblastx.out.tab_nt
+│   │   ├── {sample}_FSblastx.out.tab_nt+aa
+│   │   ├── {sample}_FScorrected.cigar
+│   │   ├── {sample}_FScorrectedgenes.list
+│   │   ├── {sample}_FScorrectedonly.fa
+│   │   ├── {sample}_pairedSeqTab
+│   │   ├── {sample}_TrinityFS.fa.clstr
+│   │   ├── {sample}_TrinityFS_redundant.fa
+│   │   └── uncorrectedgenes.fa
+│   └── output_files
+│       └── {sample}_TrinityFS.fa
 ├── {sample}_specfile
 └── {sample}_transDecoder
-    ├──── interim_files
-    └──── output_files
-        ├────── {sample}_TrinityFS.fa.transdecoder.bed
-        ├────── {sample}_TrinityFS.fa.transdecoder.cds
-        ├────── {sample}_TrinityFS.fa.transdecoder.gff3
-        ├────── {sample}_TrinityFS.fa.transdecoder.mRNA
-        └────── {sample}_TrinityFS.fa.transdecoder.pep
+    ├── interim_files
+    │   ├── base_freqs.dat
+    │   ├── base_freqs.dat.ok
+    │   ├── {sample}_blastp.out
+    │   ├── {sample}_domtblout
+    │   ├── hexamer.scores
+    │   ├── hexamer.scores.ok
+    │   ├── longest_orfs.cds
+    │   ├── longest_orfs.cds.best_candidates.gff3
+    │   ├── longest_orfs.cds.scores
+    │   ├── longest_orfs.cds.scores.ok
+    │   ├── longest_orfs.cds.scores.selected
+    │   ├── longest_orfs.cds.top_500_longest
+    │   ├── longest_orfs.cds.top_500_longest.ok
+    │   ├── longest_orfs.cds.top_longest_5000
+    │   ├── longest_orfs.cds.top_longest_5000.nr80
+    │   ├── longest_orfs.cds.top_longest_5000.nr80.clstr
+    │   ├── longest_orfs.gff3
+    │   ├── longest_orfs.gff3.inx
+    │   └── longest_orfs.pep
+    └── output_files
+        ├── {sample}_TrinityFS.fa.transdecoder.bed
+        ├── {sample}_TrinityFS.fa.transdecoder.cds
+        ├── {sample}_TrinityFS.fa.transdecoder.gff3
+        ├── {sample}_TrinityFS.fa.transdecoder.mRNA
+        └── {sample}_TrinityFS.fa.transdecoder.pep
 </pre>
 You will most likely be interested in the contents of *{sample}_transDecoder/output_files/*, the full set of ORFs. The *{sample}_specfile*, which lists software versions and output file locations, may also be useful for publishing your work later.
 
