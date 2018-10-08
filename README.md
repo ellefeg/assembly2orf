@@ -59,7 +59,7 @@ done
 ### (c) Pfam-A file
 5. Check if you have access to this Pfam-A file (the expected output is: `HMMER3/f [3.1b2 | February 2015]`):
 ```
-head -n 1 /home/laura/data/external_data/Pfam/latestDownload_runFails/Pfam-A.hmm
+head -n 1 /home/laura/data/external_data/Pfam/PfamA/Pfam-A.hmm
 ```
 
 If you get an error message or want to use a different Pfam-A file, you must find it or download one from Pfam (ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/). Do a test with hmmscan to make sure that the new file works as expected. Then edit the following lines of `./dependencies/assembly2orf.sh` to the new filepath to the Pfam-A.hmm file.
