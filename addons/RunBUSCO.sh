@@ -26,11 +26,11 @@ busco_dir=/opt/src/busco/scripts
 # Run BUSCO
 # ------------------------------------------------------------------
 
-python3 $busco_dir/run_BUSCO.py -i "$cds" -o $(basename --suffix=.cds.fa "$cds").busco -c 10 -l /ngs/db/busco/arthropoda_odb9 -m tran
+python3 $busco_dir/run_BUSCO.py -i "$cds" -o $(basename --suffix=.cds.fa "$cds").busco -c 10 -l /ngs/db/busco/arthropoda_odb9 -m tran --tmp_path ./$(basename --suffix=.cds.fa "$cds").tmp
 
 # ------------------------------------------------------------------
 # Tidy up
 # ------------------------------------------------------------------
 
 # delete temp file if empty, otherwise move to directory
-[ "$(ls -A tmp)" ] && mv tmp run*busco || rm -r tmp
+[ "$(ls -A ./$(basename --suffix=.cds.fa "$cds").tmp)" ] && mv ./$(basename --suffix=.cds.fa "$cds").tmp run*busco || rm -r ./$(basename --suffix=.cds.fa "$cds").tmp
