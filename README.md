@@ -26,7 +26,7 @@ You can find exemplar files in `assembly2orf/addons/example` to get you started.
 
 ### (a) Installation
 
-1. Download assembly2orf [assembly2orf](https://github.com/ellefeg/assembly2orf "a2o github repository") or find on the Asellus server (`/home/laura/scripts/assembly2orf`)
+1. Download [assembly2orf](https://github.com/ellefeg/assembly2orf "a2o github repository") or find on the Asellus server (`/home/laura/scripts/assembly2orf`)
 
 2. Check that scripts are executable and fix using `chmod` if required 
 ```
