@@ -19,6 +19,8 @@ Where:
 \* In-house users can use these reference sets:
 * blastDB = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.dmnd
 * blastAA = /ngs/db/ensembl_metazoa/pep/allEnsemblMetazoa_pep.all.fa.fam.longest.fa
+\# EDIT 9 NOV 2018: I now no longer recommend these. Further details forthcoming
+\# EDIT 9 Nov 2018: Note that you must give the full filepath to these files or the program fails.
 
 You can find exemplar files in `assembly2orf/addons/example` to get you started.
 
