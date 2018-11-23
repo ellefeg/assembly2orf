@@ -18,6 +18,7 @@
 		# |m.16421 is a code appended by Transdecoder (in assembly2orf)
 # tab-delimited gene family table
 	# col1 = gene family, col2 = gene ID
+	# this should only contain genes from your species of interest
 # gene count matrix
 	# must be a Kallisto matrix (abundance.tsv)
 	# or any 5-column tsv file where col1 = gene ID, col5 = tpm
