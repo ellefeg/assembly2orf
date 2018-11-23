@@ -18,6 +18,8 @@
 		# |m.16421 is a code appended by Transdecoder (in assembly2orf)
 # tab-delimited gene family table
 	# col1 = gene family, col2 = gene ID
+	# this should only contain genes from your species of interest
+
 
 # The script is happy to have plain file IDs (e.g. myfile) or paths (e.g. /path/to/myfile)
 
