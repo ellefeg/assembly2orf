@@ -38,7 +38,9 @@ fasta=$2
 fnodes_unsorted=$3
 	sort -k2,2 "$fnodes_unsorted" > "$fnodes_unsorted"_sorted
 	fnodes="$fnodes_unsorted"_sorted
-counts=$4
+counts_unsorted=$4
+	sort -k1,1 "$counts_unsorted" > "$counts_unsorted"_sorted
+	counts="$counts_unsorted"_sorted
 
 # -----------------------------------------
 # Select longest |m.xxxxxx ORF per family
@@ -84,7 +86,7 @@ grep -v -f "$species"_seqToGet "$species"_uniqORFs > "$species"_isoforms_removed
 # -----------------------------------------
 # Cleanup
 # -----------------------------------------
-rm "$species"_nameReference "$fnodes_unsorted"_sorted "$species"_size "$species"_uniqORFs "$species"_familyXref "$species"_seqOfInterest "$species"_seqToGet
+rm "$species"_nameReference "$fnodes_unsorted"_sorted "$species"_size "$species"_uniqORFs "$species"_familyXref "$species"_seqOfInterest "$species"_seqToGet "$counts_unsorted"_sorted
 
 # -----------------------------------------
 # Done
