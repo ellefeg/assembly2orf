@@ -36,11 +36,11 @@ fasta=$2
 	# get a reference of fasta names
 	grep ">" "$main_fasta" | sed 's/>//g' | awk '{print $1, $1}' | sed 's/ /\t/g' | sed 's/^[0-9a-zA-Z]*_//' | sort -k1,1 > "$species"_nameReference
 fnodes_unsorted=$3
-	sort -k2,2 "$fnodes_unsorted" > "$fnodes_unsorted"_sorted
-	fnodes="$fnodes_unsorted"_sorted
+	sort -k2,2 "$fnodes_unsorted" > $(basename "$fnodes_unsorted")_sorted
+	fnodes=$(basename "$fnodes_unsorted")_sorted
 counts_unsorted=$4
-	sort -k1,1 "$counts_unsorted" > "$counts_unsorted"_sorted
-	counts="$counts_unsorted"_sorted
+	sort -k1,1 "$counts_unsorted" > $(basename "$counts_unsorted")_sorted
+	counts=$(basename "$counts_unsorted")_sorted
 
 # -----------------------------------------
 # Select longest |m.xxxxxx ORF per family
@@ -86,7 +86,7 @@ grep -v -f "$species"_seqToGet "$species"_uniqORFs > "$species"_isoforms_removed
 # -----------------------------------------
 # Cleanup
 # -----------------------------------------
-rm "$species"_nameReference "$fnodes_unsorted"_sorted "$species"_size "$species"_uniqORFs "$species"_familyXref "$species"_seqOfInterest "$species"_seqToGet "$counts_unsorted"_sorted
+rm "$species"_nameReference $(basename "$fnodes_unsorted")_sorted "$species"_size "$species"_uniqORFs "$species"_familyXref "$species"_seqOfInterest "$species"_seqToGet $(basename "$counts_unsorted")_sorted
 
 # -----------------------------------------
 # Done
