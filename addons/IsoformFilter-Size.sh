@@ -72,13 +72,15 @@ done
 # Make a reference showing removed sequences
 # -----------------------------------------
 
+# This is the rate limiting step so it is commented out by default
+
 # makes a list of ORFs removed within a family
 # i.e. 2+ *|m.xxxxxx versions within one *ix isoform
-grep -v -f "$species"_uniqORFs "$fnodes" | cut -f 2 > "$species"_ORFs_removed
+#grep -v -f "$species"_uniqORFs "$fnodes" | cut -f 2 > "$species"_ORFs_removed
 
 # makes a list of isoforms removed within a family
 # i.e. 2+ *ix isoforms within one *gx gene
-grep -v -f "$species"_seqToGet "$species"_uniqORFs > "$species"_isoforms_removed
+#grep -v -f "$species"_seqToGet "$species"_uniqORFs > "$species"_isoforms_removed
 
 # -----------------------------------------
 # Cleanup
