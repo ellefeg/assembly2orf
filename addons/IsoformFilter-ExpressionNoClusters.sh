@@ -34,8 +34,8 @@ fasta=$2
 	# get a reference of fasta names
 	grep ">" "$main_fasta" | sed 's/>//g' | awk '{print $1, $1}' | sed 's/ /\t/g' | sed 's/^[0-9a-zA-Z]*_//' | sort -k1,1 > "$species"_nameReference
 counts_unsorted=$3
-	sort -k1,1 "$counts_unsorted" > $(basename "$counts_unsorted")_sorted
-	counts=$(basename "$counts_unsorted")_sorted
+	sort -k1,1 "$counts_unsorted" > $(basename "$counts_unsorted")_"$species"_sorted
+	counts=$(basename "$counts_unsorted")_"$species"_sorted
 
 # -----------------------------------------
 # Select longest |m.xxxxxx ORF per family
@@ -66,7 +66,7 @@ done
 # -----------------------------------------
 #rm "$species"_nameReference $(basename "$fnodes_unsorted")_sorted "$species"_size "$species"_uniqORFs "$species"_familyXref "$species"_seqOfInterest "$species"_seqToGet $(basename "$counts_unsorted")_sorted
 
-rm "$species"_nameReference $(basename "$counts_unsorted")_sorted "$species"_uniqORFs "$species"_seqToGet
+rm "$species"_nameReference $(basename "$counts_unsorted")_"$species"_sorted "$species"_uniqORFs "$species"_seqToGet
 
 # -----------------------------------------
 # Done
