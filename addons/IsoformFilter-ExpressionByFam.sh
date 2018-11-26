@@ -58,7 +58,7 @@ join -1 2 -2 2 "$fnodes" "$species"_size | sed 's/ /\t/g' | awk '{print $1, $1, 
 
 join -1 1 -2 2 "$species"_uniqORFs "$fnodes" | sed 's/ /\t/g' | sed 's/[0-9a-zA-Z]*_//' | awk '{print $1, $1, $2}' | sed 's/ /\t/g' | sed 's/|.*\tT/\tT/' | sort -k1,1 > "$species"_familyXref
 
-join "$species"_familyXref "$counts" | sed 's/ /\t/g' | sed 's/_i[0-9]*\t/\t/g' | awk '{print $1, $3, $2, $4, $5, $6, $7}' | sed 's/ /#/' | sed 's/ /\t/g' | sort -nrk6,6 | sort -u -k1,1 | cut -f 2 | grep "TRINITY" | sort > "$species"_seqOfInterest
+join "$species"_familyXref "$counts" | sed 's/ /\t/g' | sed 's/_i[0-9]*\t/\t/g' | awk '{print $1, $3, $2, $4, $5, $6, $7}' | sed 's/ /#/' | sed 's/ /\t/g' | sort -grk6,6 | sort -u -k1,1 | cut -f 2 | grep "TRINITY" | sort > "$species"_seqOfInterest
 
 # -----------------------------------------
 # Get sequences
