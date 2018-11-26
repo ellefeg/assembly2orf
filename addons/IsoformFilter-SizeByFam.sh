@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------
 # Author: Laura Grice
 # Date: 22 November 2018
-# Title: IsoformFilter-Size.sh
+# Title: IsoformFilter-SizeByFam.sh
 # Goal: To filter WITHIN gene families to remove redundant TRINITY isoforms and Transdecoder *|m.xxxx sequences (where the longest isoform is selected)
 # Usage: IsoformFilter-Size.sh {species} {fasta/s to filter} {fnodes}
 # ------------------------------------------------------------------
