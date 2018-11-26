@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------
 # Author: Laura Grice
 # Date: 22 November 2018
-# Title: IsoformFilter-Expression.sh
+# Title: IsoformFilter-ExpressionByFam.sh
 # Goal: To filter WITHIN gene families to remove redundant TRINITY isoforms and Transdecoder *|m.xxxx sequences
 # Usage: IsoformFilter-Expression.sh {species} {fasta/s to filter} {fnodes} {kallisto matrix}
 # ------------------------------------------------------------------
