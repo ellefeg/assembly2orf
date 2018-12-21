@@ -88,7 +88,7 @@ while read aaName aaSeq ntName ntSeq; do
 		# tempNT.fa = nt sequence of query sequence (from your dataset); tempAA.fa = aa sequence of reference sequence (from BLAST database)
 		# Exonerate aligns the query-nt and the subject-aa.
 		# The "normal" alignment view is repressed but CIGAR output ("operation, length" pairs: where operation = match/insertion/deletion and length = length of this operation type) is given
-		# The ryo bit
+		# The ryo bit exports the resulting sequence - with 1-nt or 2-nt indels (=frameshifts) removed, in fasta format
 	exonerate --model protein2dna --query tempAA.fa --target tempNT.fa --verbose 0 --showalignment 0 --showvulgar no --showcigar yes -n 1 --ryo ">%ti (%tab - %tae)\n%tcs\n" >> "$sample"_exonerateTemp.out
 	
 	echo "^    completed Exonerate for "$ntName" (n sequences = $(grep -c ">" "$sample"_exonerateTemp.out))"
